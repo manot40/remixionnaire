@@ -5,9 +5,9 @@
   "license": "",
   "sideEffects": false,
   "scripts": {
-    "build": "remix build",
+    "build": "prisma db push && remix build",
     "build:schemas": "prisma db push",
-    "build:seed": "prisma db seed",
+    "seed": "prisma db seed",
     "dev": "remix dev"
   },
   "dependencies": {
