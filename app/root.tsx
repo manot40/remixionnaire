@@ -1,8 +1,8 @@
+import { Toaster } from "react-hot-toast";
 import { NextUIProvider, globalCss } from "@nextui-org/react";
-import { json } from "@remix-run/node";
-import { getUser } from "./session.server";
 
 import style from "./assets/global.css";
+import { getUser } from "./session.server";
 
 import {
   Links,
@@ -12,11 +12,14 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import type {
+  LoaderFunction,
+  MetaFunction,
+  LinksFunction,
+} from "@remix-run/node";
+import { json } from "@remix-run/node";
 
-export function links() {
-  return [{ rel: "stylesheet", href: style }];
-}
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: style }];
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
@@ -45,13 +48,18 @@ export default function App() {
       <head>
         <Meta />
         <Links />
+        <Scripts />
+        <script
+          type="module"
+          src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
+        />
       </head>
       <body>
+        <Toaster />
         <NextUIProvider>
           <Outlet />
         </NextUIProvider>
         <ScrollRestoration />
-        <Scripts />
         <LiveReload />
       </body>
     </html>

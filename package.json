@@ -5,9 +5,9 @@
   "license": "",
   "sideEffects": false,
   "scripts": {
+    "db:push": "prisma db push",
+    "db:seed": "prisma db seed",
     "build": "prisma db push && remix build",
-    "build:schemas": "prisma db push",
-    "seed": "prisma db seed",
     "dev": "remix dev"
   },
   "dependencies": {
@@ -20,6 +20,7 @@
     "bcryptjs": "^2.4.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-hot-toast": "^2.2.0",
     "tiny-invariant": "^1.2.0"
   },
   "devDependencies": {

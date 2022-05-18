@@ -1,7 +1,8 @@
 import type { LoaderFunction } from "@remix-run/node";
 
 import { Container, Text, User } from "@nextui-org/react";
-import { Outlet } from "@remix-run/react";
+import { Form, Outlet } from "@remix-run/react";
+import { useRef } from "react";
 
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/libs";
@@ -12,6 +13,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function DashboardLayout() {
+  const formRef = useRef<HTMLFormElement>(null);
   const user = useUser();
 
   const headerStyle = {
@@ -40,23 +42,23 @@ export default function DashboardLayout() {
             </Text>
           </Container>
           <Container display="flex" justify="flex-end" css={{ flex: "0 0" }}>
-            <User
-              // @ts-ignore
-              pointer="true"
-              src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
-              size="sm"
-              name={user.name}
-              description="Creator"
-              css={{
-                flexDirection: "row-reverse",
-                textAlign: "right",
-                marginLeft: "0",
-              }}
-            />
+            <Form action="/logout" ref={formRef} method="post">
+              <User
+                // @ts-ignore
+                pointer="true"
+                src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
+                size="sm"
+                name={user.name}
+                description="Creator"
+                onClick={() => formRef.current?.submit()}
+                css={{
+                  flexDirection: "row-reverse",
+                  textAlign: "right",
+                  marginLeft: "0",
+                }}
+              />
+            </Form>
           </Container>
-        </Container>
-        <Container sm alignItems="center" display="flex" wrap="nowrap">
-          Test
         </Container>
       </Container>
       <Outlet />
