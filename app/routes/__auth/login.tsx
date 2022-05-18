@@ -32,6 +32,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 interface ActionData {
   errors?: {
+    login?: string;
     email?: string;
     password?: string;
   };
@@ -69,7 +70,7 @@ export const action: ActionFunction = async ({ request }) => {
   
   if (!user) {
     return json<ActionData>(
-      { errors: { email: "Invalid email or password" } },
+      { errors: { login: "Invalid email or password" } },
       { status: 400 }
     );
   }
@@ -100,11 +101,16 @@ export default function LoginPage() {
     if (actionData?.errors) {
       const err = actionData.errors;
       if (err.email) {
-        err.email === "Email is invalid" && toast.error(err.email);
+        toast.error(err.email);
         setMailErr(true);
       }
-      if (err.password || err.email === "Invalid email or password") {
-        toast.error(err.email || err.password || "");
+      if (err.password) {
+        toast.error(err.password);
+        setPassErr(true);
+      }
+      if (err.login) {
+        toast.error(err.login);
+        setMailErr(true);
         setPassErr(true);
       }
       setIsLoading(false);
@@ -116,6 +122,7 @@ export default function LoginPage() {
       display="flex"
       justify="center"
       alignItems="center"
+      wrap="nowrap"
       css={{
         height: "90vh",
         flexDirection: "column",
