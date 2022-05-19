@@ -5,7 +5,8 @@
   "license": "",
   "sideEffects": false,
   "scripts": {
-    "db:push": "prisma db push",
+    "db:mysql:push": "prisma db push --schema=./prisma/schema.mysql.prisma",
+    "db:pscale:push": "prisma db push --schema=./prisma/schema.pscale.prisma",
     "db:seed": "prisma db seed",
     "build": "prisma db push && remix build",
     "dev": "remix dev"
