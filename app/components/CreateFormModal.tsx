@@ -57,9 +57,10 @@ export default function CreateFormModal({
           />
           <Spacer y={2} />
           <Button
-            css={{ marginBottom: "1.33rem", width: "100%" }}
             type="submit"
-            shadow
+            disabled={isLoading}
+            shadow={!isLoading}
+            css={{ marginBottom: "1.33rem", width: "100%" }}
           >
             {isLoading ? (
               <Loading type="points-opacity" color="currentColor" size="sm" />
