@@ -25,7 +25,9 @@ export default function CreateFormModal({
   return (
     <Modal closeButton onClose={onClose} open={open}>
       <Modal.Header>
-        <Text h4>Create New Form</Text>
+        <Text h4 css={{ letterSpacing: "$wide" }}>
+          Create New Form
+        </Text>
       </Modal.Header>
       <Modal.Body>
         <Spacer y={0.5} />

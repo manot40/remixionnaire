@@ -117,6 +117,7 @@ export default function WorkspaceIndex() {
       if (succ.message) toast.success(succ.message);
       if (succ.action === "delete") setDeleting("");
     }
+    setIsLoading(false);
   }, [actionData]);
 
   const handleDelete = (id?: string) => {
@@ -158,7 +159,7 @@ export default function WorkspaceIndex() {
       </div>
       <Grid.Container gap={1.5} justify="flex-start">
         {data.qreList.map((qre) => (
-          <Grid xs={6} sm={3} key={qre.id}>
+          <Grid xs={12} sm={6} md={4} key={qre.id}>
             <Card
               hoverable
               clickable
