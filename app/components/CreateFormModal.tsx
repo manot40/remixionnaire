@@ -1,6 +1,13 @@
-import { Modal, Text, Spacer, Input, Button, Loading, Textarea } from "@nextui-org/react";
+import {
+  Modal,
+  Text,
+  Spacer,
+  Input,
+  Button,
+  Loading,
+  Textarea,
+} from "@nextui-org/react";
 import { Form } from "@remix-run/react";
-import { useState, useEffect } from "react";
 
 interface IProps {
   open: boolean;
@@ -15,11 +22,6 @@ export default function CreateFormModal({
   onSubmit,
   onClose,
 }: IProps) {
-  // Form Data
-  const [name, setName] = useState("");
-  const [desc, setDesc] = useState("");
-  const [expiry, setExpiry] = useState("");
-
   return (
     <Modal closeButton onClose={onClose} open={open}>
       <Modal.Header>
@@ -35,7 +37,6 @@ export default function CreateFormModal({
             bordered
             fullWidth
             required
-            onChange={(e) => setName(e.target.value)}
           />
           <Spacer y={0.5} />
           <Input
@@ -45,7 +46,6 @@ export default function CreateFormModal({
             clearable
             bordered
             fullWidth
-            onChange={(e) => setExpiry(e.target.value)}
           />
           <Spacer y={0.5} />
           <Textarea
@@ -53,7 +53,6 @@ export default function CreateFormModal({
             label="Description (optional)"
             bordered
             fullWidth
-            onChange={(e) => setDesc(e.target.value)}
           />
           <Spacer y={2} />
           <Button
