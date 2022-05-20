@@ -37,12 +37,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   });
 };
 
-export default function App() {
-  globalCss({
-    html: { backgroundColor: "$accents0 !important" },
-    body: { backgroundColor: "$accents0 !important" },
-  })();
-
+const Document = ({ children }: { children: JSX.Element }) => {
   return (
     <html lang="en">
       <head>
@@ -55,13 +50,26 @@ export default function App() {
         />
       </head>
       <body>
-        <Toaster />
-        <NextUIProvider>
-          <Outlet />
-        </NextUIProvider>
+        {children}
+        <Toaster toastOptions={{ className: "toasty" }} />
         <ScrollRestoration />
         <LiveReload />
       </body>
     </html>
+  );
+};
+
+export default function App() {
+  globalCss({
+    html: { backgroundColor: "$accents0 !important" },
+    body: { backgroundColor: "$accents0 !important" },
+  })();
+
+  return (
+    <Document>
+      <NextUIProvider>
+        <Outlet />
+      </NextUIProvider>
+    </Document>
   );
 }

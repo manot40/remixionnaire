@@ -44,6 +44,7 @@ model Questionnaire {
   description String?
   status      QuestionnaireStatus @default(DRAFT)
   expiresAt   DateTime?
+  code        String              @unique
   questions   Question[]
   respondents Respondent[]
   answers     Answer[]

@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 
-import { Container, Text, User } from "@nextui-org/react";
+import { Container, Spacer, User } from "@nextui-org/react";
 import { Form, Outlet } from "@remix-run/react";
 import { useRef } from "react";
 
@@ -12,7 +12,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   return userId;
 };
 
-export default function DashboardLayout() {
+export default function WorkspaceLayout() {
   const formRef = useRef<HTMLFormElement>(null);
   const user = useUser();
 
@@ -36,10 +36,14 @@ export default function DashboardLayout() {
             padding: ".75rem 0 .75rem 0",
           }}
         >
-          <Container display="flex" alignItems="center" css={{ flex: "1 1" }}>
-            <Text h3 margin="0">
-              Remixionnaire
-            </Text>
+          <Container display="flex">
+            <img
+              src="/images/R.png"
+              className="logo"
+              alt="branding"
+              width={32}
+              height={32}
+            />
           </Container>
           <Container display="flex" justify="flex-end" css={{ flex: "0 0" }}>
             <Form action="/logout" ref={formRef} method="post">
@@ -61,6 +65,7 @@ export default function DashboardLayout() {
           </Container>
         </Container>
       </Container>
+      <Spacer />
       <Outlet />
     </div>
   );

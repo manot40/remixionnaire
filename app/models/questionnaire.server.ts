@@ -1,4 +1,5 @@
 import type { User, Questionnaire } from "@prisma/client";
+import cuid from "cuid";
 
 import { prisma } from "~/db.server";
 
@@ -35,6 +36,7 @@ export function createQuestionnaire({
       name,
       description,
       expiresAt,
+      code: cuid.slug(),
       author: {
         connect: { id: userId },
       },

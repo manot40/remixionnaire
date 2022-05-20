@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
+import cuid from "cuid";
 
 const prisma = new PrismaClient();
 
@@ -25,9 +26,10 @@ async function seed() {
   await prisma.questionnaire.deleteMany({});
   const questionnaire = await prisma.questionnaire.create({
     data: {
-      name: "My first forms",
+      name: "My first form",
       description: faker.lorem.sentences(3),
       authorId: user.id,
+      code: cuid.slug(),
       questions: {
         create: [
           {

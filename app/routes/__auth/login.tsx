@@ -16,7 +16,7 @@ import type {
   LoaderFunction,
   MetaFunction,
 } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, useActionData, useSearchParams } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 import { useState, useEffect } from "react";
 
@@ -50,7 +50,7 @@ export const action: ActionFunction = async ({ request }) => {
   
   const remember = formData.get("remember");
   const isRegister = formData.get("isRegister")?.toString();
-  const redirectTo = safeRedirect(formData.get("redirectTo"), "/dashboard");
+  const redirectTo = safeRedirect(formData.get("redirectTo"), "/workspace");
 
   if (!validateEmail(email)) {
     return json<ActionData>(
@@ -117,6 +117,9 @@ export const meta: MetaFunction = () => {
 
 export default function LoginPage() {
   const actionData = useActionData() as ActionData;
+  
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo") || "/workspace";
 
   // Login Form
   const [mailErr, setMailErr] = useState(false);
@@ -178,6 +181,7 @@ export default function LoginPage() {
         }}
       >
         <Form method="post" onSubmit={() => setIsLoading(true)}>
+          <input type="hidden" name="redirectTo" value={redirectTo} readOnly />
           <Input
             // @ts-ignore
             contentLeft={<ion-icon name="mail-outline" style={iconStyle} />}
