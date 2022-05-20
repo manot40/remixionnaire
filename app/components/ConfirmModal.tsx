@@ -1,4 +1,12 @@
-import { Button, Divider, Modal, Spacer, Text } from "@nextui-org/react";
+import {
+  Button,
+  Divider,
+  Loading,
+  Modal,
+  Spacer,
+  Text,
+} from "@nextui-org/react";
+import { useEffect, useState } from "react";
 
 interface IProps {
   open: boolean;
@@ -15,6 +23,12 @@ export default function ConfirmModal({
   onProceed,
   onReject,
 }: IProps) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, [open]);
+
   return (
     <Modal preventClose open={open}>
       <Modal.Header>
@@ -33,8 +47,8 @@ export default function ConfirmModal({
         <Button auto flat onClick={() => onReject(param)}>
           Reject
         </Button>
-        <Button auto onClick={() => onProceed(param)}>
-          Proceed
+        <Button auto disabled={isLoading} onClick={() => onProceed(param)}>
+          {isLoading ? <Loading /> : "Proceed"}
         </Button>
       </Modal.Footer>
     </Modal>

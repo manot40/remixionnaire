@@ -31,9 +31,11 @@ type LoaderData = {
 
 interface ActionData {
   error?: {
+    action?: "create" | "delete";
     message?: string;
   };
   success?: {
+    action?: "create" | "delete";
     message?: string;
   };
 }
@@ -82,11 +84,11 @@ export const action: LoaderFunction = async ({ request }) => {
         try {
           await deleteQuestionnaire({ id, userId });
           return json<ActionData>({
-            success: { message: "Form deleted successfully" },
+            success: { message: "Form deleted successfully", action: "delete" },
           });
         } catch {
           return json<ActionData>({
-            error: { message: "Form cannot be found" },
+            error: { message: "Form cannot be found", action: "delete" },
           });
         }
       }
@@ -108,10 +110,12 @@ export default function WorkspaceIndex() {
     if (actionData?.error) {
       const err = actionData.error;
       if (err.message) toast.error(err.message);
+      if (err.action === "delete") setDeleting("");
     }
     if (actionData?.success) {
-      const success = actionData.success;
-      if (success.message) toast.success(success.message);
+      const succ = actionData.success;
+      if (succ.message) toast.success(succ.message);
+      if (succ.action === "delete") setDeleting("");
     }
   }, [actionData]);
 
@@ -123,7 +127,6 @@ export default function WorkspaceIndex() {
       });
       button.click();
     }
-    setDeleting("");
   };
 
   return (
