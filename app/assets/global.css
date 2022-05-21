@@ -1,6 +1,9 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
 .nextui-user-info {
+  cursor: pointer;
   margin-left: 0 !important;
-  margin-right: .5rem;
+  margin-right: 0.5rem;
 }
 
 .nextui-backdrop-wrapper-enter {
@@ -14,16 +17,7 @@
 
 .heading-text {
   font-size: 2.4rem;
-  margin-bottom: .8rem !important;
-}
-
-.justify-between {
-  display: flex;
-  justify-content: space-between !important;
-}
-
-.max-w-full {
-  max-width: 100% !important;
+  margin-bottom: 0.8rem !important;
 }
 
 .context-menu {
@@ -31,17 +25,16 @@
   position: sticky;
   top: 0;
   justify-content: center;
-  background-color: white;
-  border-bottom: 1px solid #E0E0E0;
+  border-bottom: 1px solid #e0e0e0;
   transform: translate(0, -1px);
   z-index: 999;
 }
 
 .context-option {
   position: relative;
-  padding: .76rem 1rem .75rem 1rem;
+  padding: 0.76rem 1rem 0.75rem 1rem;
   font-weight: 500;
-  font-size: .9rem;
+  font-size: 0.9rem;
 }
 
 .option-selected::before {
@@ -59,4 +52,17 @@
   display: inline-flex;
   flex-direction: column;
   white-space: nowrap;
+}
+
+.justify-between {
+  display: flex;
+  justify-content: space-between !important;
+}
+
+.max-w-full {
+  max-width: 100% !important;
+}
+
+.invert {
+  filter: invert(1);
 }

@@ -1,5 +1,6 @@
+import useDarkMode from "use-dark-mode";
 import { Toaster } from "react-hot-toast";
-import { NextUIProvider, globalCss } from "@nextui-org/react";
+import { createTheme, NextUIProvider } from "@nextui-org/react";
 
 import style from "./assets/global.css";
 import { getUser } from "./session.server";
@@ -59,15 +60,41 @@ const Document = ({ children }: { children: JSX.Element }) => {
   );
 };
 
-export default function App() {
-  globalCss({
-    html: { backgroundColor: "$accents0 !important" },
-    body: { backgroundColor: "$accents0 !important" },
-  })();
+const sans = 'Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,"Apple Color Emoji","Segoe UI Emoji",Segoe UI Symbol,"Noto Color Emoji"';
 
+const darkTheme = createTheme({
+  type: "dark",
+  theme: {
+    colors: {
+      backgroundDeep: "#101010",
+    },
+    fonts: { sans },
+    letterSpacings: {
+      tighter: "-.049375rem",
+    },
+  },
+});
+
+const lightTheme = createTheme({
+  type: "light",
+  theme: {
+    colors: {
+      gray50: "#EFEFEF",
+      backgroundDeep: "#FAFAFF",
+      background: "#F9F9F9",
+    },
+    fonts: { sans },
+    letterSpacings: {
+      tighter: "-.049375rem",
+    },
+  },
+});
+
+export default function App() {
+  const { value: isDark } = useDarkMode(false);
   return (
     <Document>
-      <NextUIProvider>
+      <NextUIProvider theme={isDark ? darkTheme : lightTheme}>
         <Outlet />
       </NextUIProvider>
     </Document>

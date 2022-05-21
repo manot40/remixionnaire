@@ -62,7 +62,12 @@ export default function RegisterModal({
   });
 
   return (
-    <Modal closeButton onClose={onClose} open={open}>
+    <Modal
+      closeButton
+      onClose={onClose}
+      open={open}
+      css={{ backgroundColor: "$backgroundDeep" }}
+    >
       <Modal.Header>
         <Text h4>Register New Account</Text>
       </Modal.Header>
@@ -101,11 +106,7 @@ export default function RegisterModal({
             name="password"
             onChange={(e) => setPassword(e.target.value)}
             helperColor={passWeak ? "error" : "default"}
-            helperText={
-              passWeak
-                ? "Please enter at least 8 char"
-                : ""
-            }
+            helperText={passWeak ? "Please enter at least 8 char" : ""}
             status={passWeak ? "error" : "default"}
             placeholder="Password"
             clearable

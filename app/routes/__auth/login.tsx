@@ -8,6 +8,7 @@ import {
   Spacer,
   Link,
   Loading,
+  useTheme,
 } from "@nextui-org/react";
 import toast from "react-hot-toast";
 
@@ -111,12 +112,13 @@ export const action: ActionFunction = async ({ request }) => {
 
 export const meta: MetaFunction = () => {
   return {
-    title: "Login",
+    title: "Remixionnaire | Login",
   };
 };
 
 export default function LoginPage() {
   const actionData = useActionData() as ActionData;
+  const { isDark } = useTheme();
   
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/workspace";
@@ -171,11 +173,17 @@ export default function LoginPage() {
         onRegister={() => setIsLoading(true)}
         onClose={() => setIsRegis(false)}
       />
-      <Image src="/images/R.png" showSkeleton width={80} height={80} />
+      <Image
+        src="/images/R.png"
+        style={{ filter: `invert(${isDark ? 1 : 0})` }}
+        showSkeleton
+        width={80}
+        height={80}
+      />
       <Spacer y={2} />
       <Card
-        style={{
-          backgroundColor: "white",
+        css={{
+          backgroundColor: "$backgroundDeep",
           padding: "2.6rem 1.8rem 1.8rem 1.8rem",
           maxWidth: "max-content",
         }}

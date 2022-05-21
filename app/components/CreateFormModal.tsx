@@ -23,7 +23,12 @@ export default function CreateFormModal({
   onClose,
 }: IProps) {
   return (
-    <Modal closeButton onClose={onClose} open={open}>
+    <Modal
+      closeButton
+      onClose={onClose}
+      open={open}
+      css={{ backgroundColor: "$backgroundDeep" }}
+    >
       <Modal.Header>
         <Text h4 css={{ letterSpacing: "$wide" }}>
           Create New Form

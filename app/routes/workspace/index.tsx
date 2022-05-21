@@ -29,7 +29,7 @@ import {
 } from "~/models/questionnaire.server";
 import { getUserId } from "~/session.server";
 import CreateFormModal from "~/components/CreateFormModal";
-import ConfirmModal from "~/components/ConfirmModal";
+import ConfirmPop from "~/components/ConfirmPop";
 
 type LoaderData = {
   qreList: Awaited<ReturnType<typeof getQuestionnaires>>;
@@ -154,14 +154,6 @@ export default function WorkspaceIndex() {
         onClose={() => setCreating(false)}
         onSubmit={() => setIsLoading(true)}
       />
-      <ConfirmModal
-        content="Are you sure to delete this item?"
-        open={deleting !== ""}
-        colorScheme="error"
-        param={deleting}
-        onProceed={handleDelete}
-        onReject={() => setDeleting("")}
-      />
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <Text h1 className="heading-text">
           Latest Form
@@ -191,7 +183,12 @@ export default function WorkspaceIndex() {
                   }}
                 />
               </Card.Body>
-              <Card.Footer>
+              <Card.Footer
+                css={{
+                  backgroundColor: "$backgroundDeep",
+                  border: "1px solid $border",
+                }}
+              >
                 <Row wrap="wrap" justify="space-between">
                   <div>
                     <Text b>{qre.name}</Text>
@@ -199,26 +196,11 @@ export default function WorkspaceIndex() {
                       {qre.status}
                     </Text>
                   </div>
-                  <Form method="delete" style={{ alignSelf: "center" }}>
-                    <input hidden name="id" value={qre.id} readOnly />
-                    <button hidden type="submit" id={`form-delete-${qre.id}`} />
-                    <Link
-                      type="submit"
-                      color="error"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDeleting(qre.id);
-                      }}
-                    >
-                      <Tooltip content="Delete this form?">
-                        {/* @ts-ignore */}
-                        <ion-icon
-                          name="trash-outline"
-                          style={{ fontSize: "1.4rem" }}
-                        />
-                      </Tooltip>
-                    </Link>
-                  </Form>
+                  <ConfirmPop
+                    param={qre.id}
+                    colorScheme="error"
+                    isLoading={isLoading}
+                  />
                 </Row>
               </Card.Footer>
             </Card>

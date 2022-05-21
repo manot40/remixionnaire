@@ -52,12 +52,13 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 export default function FormDetailLayout() {
   const data = useLoaderData() as LoaderData;
-  const actionData = useActionData();
+  // const actionData = useActionData();
 
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState("questions");
 
   useEffect(() => {
+    document.title = `Remixionnaire | ${data.meta.name}`;
     const tabQuery = searchParams.get("tab");
     if (tabQuery) setTab(tabQuery);
   }, [searchParams]);
@@ -74,7 +75,9 @@ export default function FormDetailLayout() {
             }}
           >
             <Container sm>
-              <Text h1>{data.meta.name}</Text>
+              <Text css={{ color: "#fff" }} h1>
+                {data.meta.name}
+              </Text>
             </Container>
           </Container>
         );
@@ -91,9 +94,13 @@ export default function FormDetailLayout() {
 
   return (
     <div>
-      <Container className="context-menu max-w-full">
+      <Container
+        css={{ backgroundColor: "$backgroundDeep" }}
+        className="context-menu max-w-full"
+      >
         <Link
           color={tab == "questions" ? "primary" : "text"}
+          style={{ userSelect: "none" }}
           onClick={() => setTab("questions")}
           className={clsx("context-option", {
             "option-selected": tab == "questions",
@@ -103,6 +110,7 @@ export default function FormDetailLayout() {
         </Link>
         <Link
           color={tab == "answers" ? "primary" : "text"}
+          style={{ userSelect: "none" }}
           onClick={() => setTab("answers")}
           className={clsx("context-option", {
             "option-selected": tab == "answers",
@@ -112,6 +120,7 @@ export default function FormDetailLayout() {
         </Link>
         <Link
           color={tab == "options" ? "primary" : "text"}
+          style={{ userSelect: "none" }}
           onClick={() => setTab("options")}
           className={clsx("context-option", {
             "option-selected": tab == "options",

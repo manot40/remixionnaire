@@ -58,7 +58,7 @@ export default function AnswersTable({
           Export to xlsx
         </Button>
       </div>
-      <Spacer y={0.5} />
+      <Spacer />
       {tableData.length ? (
         <Table
           aria-label="Example static collection table with multiple selection"
@@ -67,15 +67,15 @@ export default function AnswersTable({
           css={{
             height: "auto",
             minWidth: "100%",
-            backgroundColor: "white",
+            backgroundColor: "$background",
           }}
         >
           <Table.Header>
-            <Table.Column allowsSorting key="name">
+            <Table.Column key="name">
               Respondent
             </Table.Column>
             {questions.map((q) => (
-              <Table.Column allowsSorting key={`col-${q.id}`}>
+              <Table.Column key={`col-${q.id}`}>
                 {q.name}
               </Table.Column>
             ))}
