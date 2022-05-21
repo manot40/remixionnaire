@@ -45,7 +45,7 @@ model Questionnaire {
   status      QuestionnaireStatus @default(DRAFT)
   expiresAt   DateTime?
   code        String              @unique
-  theme       String              @db.Char(length: 6)
+  theme       String              @default("106ebe") @db.Char(length: 6)
   questions   Question[]
   respondents Respondent[]
   answers     Answer[]
