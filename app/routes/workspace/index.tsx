@@ -7,10 +7,16 @@ import {
   Grid,
   Link,
   Row,
+  Spacer,
   Text,
   Tooltip,
 } from "@nextui-org/react";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
@@ -65,9 +71,14 @@ export const action: LoaderFunction = async ({ request }) => {
 
       const description = formData.get("description")?.toString() || null;
 
+      const theme =
+        formData.get("theme")?.toString() ||
+        ((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0");
+
       try {
         const { code } = await createQuestionnaire({
           name,
+          theme,
           description,
           expiresAt,
           userId,
@@ -98,6 +109,7 @@ export const action: LoaderFunction = async ({ request }) => {
 };
 
 export default function WorkspaceIndex() {
+  const [searchParams] = useSearchParams();
   const data = useLoaderData() as LoaderData;
   const actionData = useActionData() as ActionData;
 
@@ -105,6 +117,9 @@ export default function WorkspaceIndex() {
   const [creating, setCreating] = useState(false);
 
   const [deleting, setDeleting] = useState("");
+
+  if (searchParams.get("error") === "notfound")
+    toast.error("Specified form not found");
 
   useEffect(() => {
     if (actionData?.error) {
@@ -132,15 +147,17 @@ export default function WorkspaceIndex() {
 
   return (
     <Container sm>
+      <Spacer />
       <CreateFormModal
         open={creating}
         isLoading={isLoading}
-        onSubmit={() => setIsLoading(true)}
         onClose={() => setCreating(false)}
+        onSubmit={() => setIsLoading(true)}
       />
       <ConfirmModal
-        open={deleting !== ""}
         content="Are you sure to delete this item?"
+        open={deleting !== ""}
+        colorScheme="error"
         param={deleting}
         onProceed={handleDelete}
         onReject={() => setDeleting("")}
@@ -165,13 +182,13 @@ export default function WorkspaceIndex() {
               clickable
               onClick={(e) => (window.location.href = `/workspace/${qre.code}`)}
             >
-              <Card.Body css={{ p: 0 }}>
-                <Card.Image
-                  objectFit="cover"
-                  src="https://nextui.org/images/fruit-6.jpeg"
-                  width="100%"
-                  height={140}
-                  alt={qre.name}
+              <Card.Body href={`/workspace/${qre.code}`} as="a" css={{ p: 0 }}>
+                <div
+                  style={{
+                    width: "100%",
+                    height: "140px",
+                    backgroundColor: `#${qre.theme}`,
+                  }}
                 />
               </Card.Body>
               <Card.Footer>

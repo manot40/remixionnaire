@@ -3,16 +3,15 @@ import cuid from "cuid";
 
 import { prisma } from "~/db.server";
 
-export type { Questionnaire };
-
 export function getQuestionnaire({
-  id,
+  code,
   userId,
-}: Pick<Questionnaire, "id"> & {
+}: Pick<Questionnaire, "code"> & {
   userId: User["id"];
 }) {
   return prisma.questionnaire.findFirst({
-    where: { id, authorId: userId },
+    where: { code, authorId: userId },
+    include: { questions: true, respondents: true },
   });
 }
 
@@ -26,9 +25,10 @@ export function getQuestionnaires({ userId }: { userId: User["id"] }) {
 export function createQuestionnaire({
   name,
   description,
+  theme,
   expiresAt,
   userId,
-}: Pick<Questionnaire, "name" | "description" | "expiresAt"> & {
+}: Pick<Questionnaire, "name" | "description" | "expiresAt" | "theme"> & {
   userId: User["id"];
 }) {
   return prisma.questionnaire.create({
@@ -37,6 +37,7 @@ export function createQuestionnaire({
       description,
       expiresAt,
       code: cuid.slug(),
+      theme,
       author: {
         connect: { id: userId },
       },

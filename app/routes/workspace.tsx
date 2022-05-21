@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 
-import { Container, Spacer, User } from "@nextui-org/react";
+import { Container, User } from "@nextui-org/react";
 import { Form, Outlet } from "@remix-run/react";
 import { useRef } from "react";
 
@@ -18,8 +18,8 @@ export default function WorkspaceLayout() {
 
   const headerStyle = {
     bg: "$background",
-    border: "1px solid $border",
     maxWidth: "100%",
+    border: "1px solid $border",
   };
 
   return (
@@ -65,7 +65,6 @@ export default function WorkspaceLayout() {
           </Container>
         </Container>
       </Container>
-      <Spacer />
       <Outlet />
     </div>
   );

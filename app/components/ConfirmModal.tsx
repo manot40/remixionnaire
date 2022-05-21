@@ -12,6 +12,7 @@ interface IProps {
   open: boolean;
   content: string;
   param?: any;
+  colorScheme?: "primary" | "secondary" | "error" | "success" | "warning";
   onProceed: (args: any) => void;
   onReject: (args: any) => void;
 }
@@ -20,6 +21,7 @@ export default function ConfirmModal({
   open,
   content,
   param,
+  colorScheme = "primary",
   onProceed,
   onReject,
 }: IProps) {
@@ -31,7 +33,6 @@ export default function ConfirmModal({
 
   const reject = () => {
     onReject(param);
-    setIsLoading(true);
   };
 
   const proceed = () => {
@@ -61,10 +62,20 @@ export default function ConfirmModal({
         <Divider />
       </Modal.Body>
       <Modal.Footer css={{ display: "flex", justifyContent: "center" }}>
-        <Button auto flat onClick={reject}>
-          Reject
+        <Button
+          flat
+          onClick={reject}
+          color={colorScheme}
+          css={{ minWidth: "9rem" }}
+        >
+          Dismiss
         </Button>
-        <Button auto disabled={isLoading} onClick={proceed}>
+        <Button
+          disabled={isLoading}
+          color={colorScheme}
+          onClick={proceed}
+          css={{ minWidth: "9rem" }}
+        >
           {isLoading ? (
             <Loading type="points-opacity" color="currentColor" size="sm" />
           ) : (

@@ -7,6 +7,11 @@
   z-index: 9998 !important;
 }
 
+.nextui-table-cell {
+  white-space: normal !important;
+  min-width: 12rem;
+}
+
 .heading-text {
   font-size: 2.4rem;
   margin-bottom: .8rem !important;
@@ -15,4 +20,43 @@
 .justify-between {
   display: flex;
   justify-content: space-between !important;
+}
+
+.max-w-full {
+  max-width: 100% !important;
+}
+
+.context-menu {
+  display: flex !important;
+  position: sticky;
+  top: 0;
+  justify-content: center;
+  background-color: white;
+  border-bottom: 1px solid #E0E0E0;
+  transform: translate(0, -1px);
+  z-index: 999;
+}
+
+.context-option {
+  position: relative;
+  padding: .76rem 1rem .75rem 1rem;
+  font-weight: 500;
+  font-size: .9rem;
+}
+
+.option-selected::before {
+  content: "";
+  display: block;
+  position: absolute;
+  height: 0;
+  left: 9px;
+  right: 9px;
+  bottom: 0px;
+  border-bottom: 2px solid;
+}
+
+.inline-name-wrapper {
+  display: inline-flex;
+  flex-direction: column;
+  white-space: nowrap;
 }

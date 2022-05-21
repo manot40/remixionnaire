@@ -30,6 +30,7 @@ async function seed() {
       description: faker.lorem.sentences(3),
       authorId: user.id,
       code: cuid.slug(),
+      theme: "b6fe2f",
       questions: {
         create: [
           {
@@ -68,7 +69,7 @@ async function seed() {
     respondents.forEach((respondent) => {
       questionnaire.questions.forEach((question) => {
         answers.push({
-          questionnairesId: questionnaire.id,
+          questionnaireId: questionnaire.id,
           respondentId: respondent.id,
           questionId: question.id,
           answer:
