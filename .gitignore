@@ -11,6 +11,7 @@ sam.yaml
 
 /build/
 /public/build
+/public/*.prisma
 /api/index.js
 /prisma/data.db
 /server/index.js
