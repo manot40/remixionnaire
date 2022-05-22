@@ -5,7 +5,12 @@ node_modules
 .vercel
 .output
 
+preferences.arc
+sam.json
+sam.yaml
+
 /build/
 /public/build
 /api/index.js
 /prisma/data.db
+/server/index.js
