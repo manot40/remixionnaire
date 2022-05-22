@@ -5,16 +5,14 @@ import {
   Card,
   Container,
   Grid,
-  Link,
   Row,
   Spacer,
   Text,
-  Tooltip,
 } from "@nextui-org/react";
 import {
-  Form,
   useActionData,
   useLoaderData,
+  useNavigate,
   useSearchParams,
 } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
@@ -110,13 +108,13 @@ export const action: LoaderFunction = async ({ request }) => {
 
 export default function WorkspaceIndex() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
   const data = useLoaderData() as LoaderData;
   const actionData = useActionData() as ActionData;
 
   const [isLoading, setIsLoading] = useState(false);
   const [creating, setCreating] = useState(false);
-
-  const [deleting, setDeleting] = useState("");
 
   if (searchParams.get("error") === "notfound")
     toast.error("Specified form not found");
@@ -125,25 +123,13 @@ export default function WorkspaceIndex() {
     if (actionData?.error) {
       const err = actionData.error;
       if (err.message) toast.error(err.message);
-      if (err.action === "delete") setDeleting("");
     }
     if (actionData?.success) {
       const succ = actionData.success;
       if (succ.message) toast.success(succ.message);
-      if (succ.action === "delete") setDeleting("");
     }
     setIsLoading(false);
   }, [actionData]);
-
-  const handleDelete = (id?: string) => {
-    const button: any = document.querySelector(`#form-delete-${id}`);
-    if (button) {
-      button.addEventListener("click", (e: any) => {
-        e.stopPropagation();
-      });
-      button.click();
-    }
-  };
 
   return (
     <Container sm>
@@ -172,9 +158,9 @@ export default function WorkspaceIndex() {
             <Card
               hoverable
               clickable
-              onClick={(e) => (window.location.href = `/workspace/${qre.code}`)}
+              onClick={() => navigate(`/workspace/${qre.code}`)}
             >
-              <Card.Body href={`/workspace/${qre.code}`} as="a" css={{ p: 0 }}>
+              <Card.Body css={{ p: 0 }}>
                 <div
                   style={{
                     width: "100%",

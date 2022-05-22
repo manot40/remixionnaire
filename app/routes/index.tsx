@@ -1,3 +1,122 @@
+import type { ActionFunction } from "@remix-run/node";
+
+import { useEffect } from "react";
+import toast from "react-hot-toast";
+import { json, redirect } from "@remix-run/node";
+import { Form, useActionData } from "@remix-run/react";
+import ProfilePopover from "~/components/ProfilePopover";
+import { Button, Container, Input, Spacer, Text } from "@nextui-org/react";
+
+import { getQuestionnaire } from "~/models/questionnaire.server";
+import { useOptionalUser } from "~/libs";
+
+type ActionData = {
+  error: {
+    message: string;
+  };
+};
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+  const code = formData.get("code");
+
+  if (typeof code !== "string" || code.length < 6) {
+    return json<ActionData>({ error: { message: "Invitation code invalid" } });
+  }
+
+  const qre = await getQuestionnaire({ code });
+
+  if (!qre) {
+    return json<ActionData>({
+      error: { message: "Invitation code not found" },
+    });
+  } else {
+    return redirect(`/r/${qre.id}`);
+  }
+};
+
 export default function Index() {
-  return <div />;
+  const action = useActionData() as ActionData;
+  const user = useOptionalUser();
+
+  useEffect(() => {
+    if (action?.error) toast.error(action.error.message);
+  }, [action]);
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100vh",
+        display: "flex",
+        flexWrap: "wrap",
+      }}
+    >
+      <Container xl css={{ background: "$backgroundDeep" }}>
+        <Container
+          sm
+          css={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "62%",
+            padding: "1rem 0px 1rem 0px",
+          }}
+        >
+          <div style={{ flex: 1, alignSelf: "flex-end" }}>
+            <ProfilePopover user={user} />
+          </div>
+          <div style={{ userSelect: "none" }}>
+            <Text
+              h1
+              css={{
+                textGradient: "45deg, $blue600 -20%, $pink600 50%",
+
+                fontSize: "3rem",
+                "@sm": { fontSize: "3.6rem", textAlign: "center" },
+              }}
+            >
+              Remixionnaire
+            </Text>
+            <Text css={{ letterSpacing: "$normal" }}>
+              Simple questionnaire inquiry app, build with Remix and NextUI
+            </Text>
+          </div>
+        </Container>
+      </Container>
+      <Container
+        css={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          background: "$background",
+        }}
+      >
+        <div style={{ display: "block", marginTop: "-1.66rem" }}>
+          <Text
+            css={{
+              textAlign: "center",
+              fontWeight: "$semibold",
+              letterSpacing: "$tight",
+              fontSize: "1.4rem",
+            }}
+          >
+            Enter Form Invitation
+          </Text>
+          <Spacer y={2} />
+          <Form
+            method="post"
+            style={{ width: "18rem", display: "flex", margin: "0 auto" }}
+          >
+            <Input fullWidth underlined name="code" placeholder="Form code" />
+            <Spacer x={0.75} />
+            <Button ghost auto type="submit">
+              Go
+            </Button>
+          </Form>
+        </div>
+      </Container>
+    </div>
+  );
 }

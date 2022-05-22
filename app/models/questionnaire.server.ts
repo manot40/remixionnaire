@@ -7,7 +7,7 @@ export function getQuestionnaire({
   code,
   userId,
 }: Pick<Questionnaire, "code"> & {
-  userId: User["id"];
+  userId?: User["id"];
 }) {
   return prisma.questionnaire.findFirst({
     where: { code, authorId: userId },
