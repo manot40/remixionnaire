@@ -60,7 +60,8 @@ export default function Index() {
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            height: "62%",
+            height: "65%",
+            flexWrap: "nowrap",
             padding: "1rem 0px 1rem 0px",
           }}
         >
