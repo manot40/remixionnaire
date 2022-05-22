@@ -38,6 +38,37 @@ jobs:
       - name: 🔎 Type check
         run: npm run typecheck --if-present
 
+  # prisma:
+  #   name: Prisma for Lambda
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: 🛑 Cancel Previous Runs
+  #       uses: styfle/cancel-workflow-action@0.9.1
+
+  #     - name: ⬇️ Checkout repo
+  #       uses: actions/checkout@v3
+
+  #     - name: ⎔ Setup node
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 14
+
+  #     - name: 📥 Download deps
+  #       uses: bahmutov/npm-install@v1
+  #       with:
+  #         useLockFile: false
+
+  #     - name: Prepare prisma client
+  #       run: yarn db:pscale:generate
+
+  #     - name: Prepare "@prisma/client" lambda layer
+  #       run: ./scripts/prismaClientLambda.sh
+
+  #     - uses: actions/upload-artifact@v3
+  #       with:
+  #         name: lambda-prisma-client
+  #         path: ./lambda-prisma-client
+
   deploy:
     needs: [typecheck]
     runs-on: ubuntu-latest
@@ -71,7 +102,7 @@ jobs:
       - name: 🏗 Build
         env:
           PRISMA_BINARY_TARGET: '["rhel-openssl-1.0.x"]'
-        run: npm run db:pscale:generate && npm run build:lambda
+        run: npm run build:lambda
 
       - name: 🛠 Install Arc
         run: npm i -g @architect/architect
