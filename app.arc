@@ -1,5 +1,5 @@
 @app
-remix-architect-app
+remixionnaire
 
 @http
 /*
