@@ -1,11 +1,18 @@
 import type { ActionFunction } from "@remix-run/node";
 
-import { useEffect } from "react";
+import {
+  Button,
+  Container,
+  Input,
+  Loading,
+  Spacer,
+  Text,
+} from "@nextui-org/react";
 import toast from "react-hot-toast";
 import { json, redirect } from "@remix-run/node";
+import { useEffect, useRef, useState } from "react";
 import { Form, useActionData } from "@remix-run/react";
 import ProfilePopover from "~/components/ProfilePopover";
-import { Button, Container, Input, Spacer, Text } from "@nextui-org/react";
 
 import { getQuestionnaire } from "~/models/questionnaire.server";
 import { useOptionalUser } from "~/libs";
@@ -36,12 +43,21 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function Index() {
+  const submitRef = useRef<HTMLButtonElement>(null);
   const action = useActionData() as ActionData;
   const user = useOptionalUser();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     if (action?.error) toast.error(action.error.message);
+    setIsLoading(false);
   }, [action]);
+
+  const findForm = () => {
+    submitRef.current?.click();
+    setIsLoading(true);
+  };
 
   return (
     <div
@@ -106,14 +122,22 @@ export default function Index() {
             Enter Form Invitation
           </Text>
           <Spacer y={2} />
-          <Form
-            method="post"
-            style={{ width: "18rem", display: "flex", margin: "0 auto" }}
-          >
+          <Form method="post" style={{ width: "18rem", display: "flex", margin: "0 auto" }}>
             <Input fullWidth underlined name="code" placeholder="Form code" />
+            <button hidden ref={submitRef} type="submit" />
             <Spacer x={0.75} />
-            <Button ghost auto type="submit">
-              Go
+            <Button
+              ghost
+              auto
+              type="submit"
+              disabled={isLoading}
+              onClick={findForm}
+            >
+              {isLoading ? (
+                <Loading type="spinner" color="currentColor" size="sm" />
+              ) : (
+                "Go"
+              )}
             </Button>
           </Form>
         </div>
