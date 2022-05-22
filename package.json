@@ -11,9 +11,10 @@
     "db:seed": "prisma db seed",
     "lambda:watch": "remix watch",
     "lambda:arc": "cross-env NODE_ENV=development arc sandbox",
-    "dev:lambda": "cross-env REMIX_RUNTIME=arc remix build && run-p lambda:*",
+    "dev:lambda": "run-s build:lambda && run-p lambda:*",
     "dev": "remix dev",
     "build": "remix build",
+    "build:lambda": "cross-env REMIX_RUNTIME=arc remix build",
     "start": "cross-env NODE_ENV=production arc sandbox"
   },
   "dependencies": {
