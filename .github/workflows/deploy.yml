@@ -62,7 +62,7 @@ jobs:
         run: npm run typecheck --if-present
 
   deploy:
-    needs: [lint, typecheck, vitest, cypress]
+    needs: [lint, typecheck]
     runs-on: ubuntu-latest
 
     steps:
