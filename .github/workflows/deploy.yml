@@ -69,6 +69,8 @@ jobs:
           useLockFile: false
 
       - name: 🏗 Build
+        env:
+          PRISMA_BINARY_TARGET: '["rhel-openssl-1.0.x"]'
         run: npm run db:pscale:generate && npm run build:lambda
 
       - name: 🛠 Install Arc
