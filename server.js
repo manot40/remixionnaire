@@ -6,7 +6,9 @@ import * as build from "@remix-run/dev/server-build";
 const createRequestHandler =
   process.env.REMIX_RUNTIME === "arc" ? lambdaHandler : vercelHandler;
 
-export default createRequestHandler({
+export const handler = createRequestHandler({
   build,
   mode: process.env.NODE_ENV,
 });
+
+export default createRequestHandler({ build, mode: process.env.NODE_ENV });
