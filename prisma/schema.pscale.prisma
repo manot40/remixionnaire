@@ -7,7 +7,7 @@ datasource db {
 generator client {
   provider        = "prisma-client-js"
   output          = "../public/.prisma"
-  binaryTargets   = env("PRISMA_BINARY_TARGET")
+  binaryTargets   = [env("PRISMA_BINARY_TARGET")]
   previewFeatures = ["referentialIntegrity"]
 }
 
