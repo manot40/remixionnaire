@@ -75,7 +75,7 @@ export default function WorkspaceLayout() {
                 <User
                   // @ts-ignore
                   pointer="true"
-                  src="https://i.pravatar.cc/150"
+                  src="https://i.pravatar.cc/150?img=15"
                   size="sm"
                   name={user.name}
                   description="Creator"

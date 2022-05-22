@@ -7,7 +7,6 @@ import type {
 } from "@prisma/client";
 
 import {
-  useActionData,
   useLoaderData,
   useSearchParams,
 } from "@remix-run/react";
