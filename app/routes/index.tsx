@@ -47,12 +47,12 @@ export default function Index() {
     <div
       style={{
         width: "100%",
-        height: "100vh",
+        height: "85vh",
         display: "flex",
         flexWrap: "wrap",
       }}
     >
-      <Container xl css={{ background: "$backgroundDeep" }}>
+      <Container xl css={{ background: "$gray50" }}>
         <Container
           sm
           css={{
