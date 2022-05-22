@@ -6,7 +6,7 @@ import { Container, useTheme } from "@nextui-org/react";
 
 import ProfilePopover from "~/components/ProfilePopover";
 
-import { useUser } from "~/libs";
+import { useIsLambda, useUser } from "~/libs";
 import { requireUserId } from "~/session.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -24,6 +24,7 @@ export default function WorkspaceLayout() {
   const user = useUser();
 
   const { isDark } = useTheme();
+  const { linker } = useIsLambda();
 
   const headerStyle = {
     bg: "$backgroundDeep",
@@ -48,7 +49,7 @@ export default function WorkspaceLayout() {
           <Container display="flex">
             <img
               className={clsx("logo", { invert: isDark })}
-              src="/images/R.png"
+              src={linker("/images/R.png")}
               alt="branding"
               width={32}
               height={32}

@@ -21,7 +21,7 @@ import { Form, useActionData, useSearchParams } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 import { useState, useEffect } from "react";
 
-import { safeRedirect, validateEmail } from "~/libs";
+import { useIsLambda, safeRedirect, validateEmail } from "~/libs";
 import RegisterModal from "~/components/RegisterModal";
 import { createUserSession, getUserId } from "~/session.server";
 import { createUser, getUserByEmail, verifyLogin } from "~/models/user.server";
@@ -119,6 +119,7 @@ export const meta: MetaFunction = () => {
 export default function LoginPage() {
   const actionData = useActionData() as ActionData;
   const { isDark } = useTheme();
+  const { linker } = useIsLambda();
   
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/workspace";
@@ -174,7 +175,7 @@ export default function LoginPage() {
         onClose={() => setIsRegis(false)}
       />
       <Image
-        src="/images/R.png"
+        src={linker("/images/R.png")}
         style={{ filter: `invert(${isDark ? 1 : 0})` }}
         showSkeleton
         width={80}

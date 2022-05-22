@@ -8,8 +8,9 @@ module.exports = {
   // so we default back to the standard build output.
   server: process.env.NODE_ENV === "development" ? undefined : "./server.js",
   ignoredRouteFiles: ["**/.*"],
+  assetsBuildDirectory: "public/build",
+  publicPath:
+    process.env.REMIX_RUNTIME === "arc" ? "/_static/build/" : "/build/",
   // appDirectory: "app",
-  // assetsBuildDirectory: "public/build",
   // serverBuildPath: "api/index.js",
-  // publicPath: "/build/",
 };

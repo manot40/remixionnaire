@@ -69,7 +69,7 @@ jobs:
           useLockFile: false
 
       - name: 🏗 Build
-        run: npm run db:pscale:generate && npm run build:lambda
+        run: npm run build:lambda
 
       - name: 🛠 Install Arc
         run: npm i -g @architect/architect
