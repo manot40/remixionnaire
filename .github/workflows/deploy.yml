@@ -102,7 +102,7 @@ jobs:
       - name: 🏗 Build
         env:
           PRISMA_BINARY_TARGET: '["rhel-openssl-1.0.x"]'
-        run: npm run build:lambda
+        run: npm run db:generate && npm run build:lambda
 
       - name: 🛠 Install Arc
         run: npm i -g @architect/architect
