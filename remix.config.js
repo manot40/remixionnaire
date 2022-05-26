@@ -1,5 +1,5 @@
 const isDev = process.env.NODE_ENV === "development";
-const isVercel = process.env.VERCEL === 1;
+const isVercel = process.env.VERCEL;
 
 /**
  * @type {import('@remix-run/dev').AppConfig}
