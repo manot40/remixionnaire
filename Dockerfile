@@ -9,6 +9,7 @@ COPY ./yarn.lock ./
 
 RUN yarn
 COPY ./ .
+# Change to pscale:generate if you are using PlanetScale
 RUN yarn db:generate
 
 ENV NODE_ENV=production
