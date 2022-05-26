@@ -1,10 +1,10 @@
 datasource db {
-  provider = "sqlite"
-  url      = "file:./data.db?connection_limit=1"
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
 }
 
 model User {
@@ -39,13 +39,13 @@ model Respondent {
 }
 
 model Questionnaire {
-  id          String       @id @default(cuid())
+  id          String              @id @default(cuid())
   name        String
   description String?
-  status      String       @default("DRAFT")
+  status      QuestionnaireStatus @default(DRAFT)
   expiresAt   DateTime?
-  code        String       @unique
-  theme       String       @default("106ebe")
+  code        String              @unique
+  theme       String              @default("106ebe") @db.Char(length: 6)
   questions   Question[]
   respondents Respondent[]
   answers     Answer[]
@@ -60,11 +60,11 @@ model Questionnaire {
 }
 
 model Question {
-  id          String   @id @default(cuid())
+  id          String       @id @default(cuid())
   name        String
   description String?
-  type        String   @default("SHORT_TEXT")
-  list        String?
+  type        QuestionType @default(SHORT_TEXT)
+  list        Json?
   answers     Answer[]
 
   questionnaireId String
@@ -87,4 +87,18 @@ model Answer {
   answeredAt      DateTime      @default(now())
 
   @@map("answers")
+}
+
+enum QuestionType {
+  TEXT
+  SHORT_TEXT
+  RADIO
+  CHECKBOX
+}
+
+enum QuestionnaireStatus {
+  ACTIVE
+  CLOSED
+  DRAFT
+  PUBLISHED
 }

@@ -22,7 +22,6 @@ export const meta: MetaFunction = () => {
 
 export default function WorkspaceLayout() {
   const user = useUser();
-
   const { isDark } = useTheme();
 
   const headerStyle = {

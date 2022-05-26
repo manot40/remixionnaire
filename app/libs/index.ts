@@ -10,8 +10,8 @@ import safeRedirect from "./safeRedirect";
 export {
   replaceUrlParam,
   validateEmail,
-  objArrSort,
   safeRedirect,
+  objArrSort,
   useMatchesData,
   useOptionalUser,
   useUser,
