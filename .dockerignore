@@ -2,6 +2,7 @@ node_modules
 
 .cache
 .env
+.env.*
 .vercel
 .output
 
@@ -9,7 +10,7 @@ sam.json
 sam.yaml
 
 /build/
-/docker/.env
+/docker/
 /public/build
 /api/index.js
 /prisma/data.db
