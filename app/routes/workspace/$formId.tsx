@@ -8,10 +8,12 @@ import { json, redirect } from "@remix-run/node";
 // React Libs
 import { Container, Link, Spacer, Text } from "@nextui-org/react";
 import { useEffect, useState } from "react";
+import { useSetRecoilState } from "recoil";
 import clsx from "clsx";
 
 // Custom libs and helper
 import { objArrSort } from "~/libs";
+import { questionsStore } from "~/store";
 import { getUserId } from "~/session.server";
 import { getAnswers } from "~/models/answer.server";
 import { getQuestionnaire } from "~/models/questionnaire.server";
@@ -54,6 +56,12 @@ export default function FormDetailLayout() {
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState("questions");
 
+  const setQuestion = useSetRecoilState(questionsStore);
+
+  useEffect(() => {
+    setQuestion(data.questions);
+  }, []);
+
   useEffect(() => {
     document.title = `Remixionnaire | ${data.meta.name}`;
     const tabQuery = searchParams.get("tab");
@@ -73,8 +81,11 @@ export default function FormDetailLayout() {
               }}
             >
               <Container sm>
-                <Text css={{ color: "#fff" }} h1>
+                <Text h1>
                   {data.meta.name}
+                </Text>
+                <Text>
+                  {data.meta.description}
                 </Text>
               </Container>
             </Container>
@@ -86,8 +97,8 @@ export default function FormDetailLayout() {
       case "answers":
         return (
           <AnswersTable
-            respondents={objArrSort(data.respondents, "id")}
-            questions={objArrSort(data.questions, "id")}
+            respondents={data.respondents}
+            questions={data.questions}
           />
         );
     }
@@ -120,14 +131,14 @@ export default function FormDetailLayout() {
           Answers
         </Link>
         <Link
-          color={tab == "options" ? "primary" : "text"}
+          color={tab == "setting" ? "primary" : "text"}
           style={{ userSelect: "none" }}
-          onClick={() => setTab("options")}
+          onClick={() => setTab("setting")}
           className={clsx("context-option", {
-            "option-selected": tab == "options",
+            "option-selected": tab == "setting",
           })}
         >
-          Options
+          Setting
         </Link>
       </Container>
       {renderContent()}

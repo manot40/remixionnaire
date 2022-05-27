@@ -41,7 +41,7 @@ model Respondent {
 model Questionnaire {
   id          String              @id @default(cuid())
   name        String
-  description String?
+  description String?             @db.LongText
   status      QuestionnaireStatus @default(DRAFT)
   expiresAt   DateTime?
   code        String              @unique
@@ -62,9 +62,11 @@ model Questionnaire {
 model Question {
   id          String       @id @default(cuid())
   name        String
+  description String?      @db.LongText
   order       Int?
   type        QuestionType @default(SHORT_TEXT)
   list        Json?
+  required    Boolean      @default(false)
   answers     Answer[]
 
   questionnaireId String

@@ -15,8 +15,11 @@ import {
   Switch,
   Text,
 } from "@nextui-org/react";
-import { useState } from "react";
 import cuid from "cuid";
+import { useRecoilState } from "recoil";
+
+import Select from "./Select";
+import { questionsStore } from "~/store";
 
 type TProps = {
   questions: QuestionnaireData["questions"];
@@ -24,7 +27,7 @@ type TProps = {
 
 export default function QuestionsEditor({ questions: _questions }: TProps) {
   // Main state
-  const [questions, setQuestions] = useState(_questions);
+  const [questions, setQuestions] = useRecoilState(questionsStore);
 
   const optionAdd = (id: string) => {
     const idx = questions.findIndex((q) => q.id === id);
@@ -60,7 +63,9 @@ export default function QuestionsEditor({ questions: _questions }: TProps) {
       name: "",
       order: tmp.length + 1,
       type: "SHORT_TEXT",
-      list: null,
+      required: false,
+      description: null,
+      list: [],
       questionnaireId: "",
       updatedAt: new Date(),
       answers: [],
@@ -143,28 +148,46 @@ export default function QuestionsEditor({ questions: _questions }: TProps) {
           css={{ marginBottom: "$10", padding: "12px 6px 0px 6px" }}
           key={idx}
         >
-          <Card.Body>
-            <Input
-              underlined
-              animated={false}
-              placeholder={question.name || "Question Name"}
-              style={{ fontSize: "1rem", fontWeight: 600 }}
-              className="question-title-input"
-            />
+          <Card.Body style={{ minHeight: "12rem" }}>
+            <div className="w-full" style={{ display: "flex" }}>
+              <Input
+                fullWidth
+                underlined
+                animated={false}
+                className="question-title-input"
+                placeholder={question.name || "Question Name"}
+                style={{ fontSize: "1rem", fontWeight: 600 }}
+              />
+              <Select
+                options={[
+                  { value: "SHORT_TEXT", label: "Short Text" },
+                  { value: "TEXT", label: "Text" },
+                  { value: "RADIO", label: "Radio" },
+                  { value: "CHECKBOX", label: "Checkbox" },
+                ]}
+                placeholder="Question Type"
+                onChange={(e) => {
+                  const tmp = [...questions];
+                  tmp[idx] = { ...tmp[idx], type: e as any };
+                  setQuestions(tmp);
+                }}
+                style={{ width: "25%" }}
+              />
+            </div>
             <Spacer y={0.5} />
             {questionContentRender(idx)}
-            {question.list && (
+            {!/TEXT/.test(question.type) && (
               <>
                 <Spacer />
                 <Link
                   onClick={() => optionAdd(question.id)}
                   css={{ fontSize: "14px" }}
                 >
-                  + Insert new
+                  + Insert option
                 </Link>
               </>
             )}
-            <Spacer y={question.list ? 1 : 1.5} />
+            <Spacer y={!/TEXT/.test(question.type) ? 1 : 1.5} />
           </Card.Body>
           <Divider />
           <Card.Footer>
@@ -181,7 +204,17 @@ export default function QuestionsEditor({ questions: _questions }: TProps) {
                 <Text size={14} css={{ margin: "1px 8px 0px 0px" }}>
                   Required
                 </Text>
-                <Switch onChange={(e) => console.log(e.target)} size="sm" />
+                <Switch
+                  size="sm"
+                  checked={question.required}
+                  onChange={({ target }) =>
+                    setQuestions((prev) => {
+                      const tmp = [...prev];
+                      tmp[idx] = { ...tmp[idx], required: target.checked };
+                      return tmp;
+                    })
+                  }
+                />
               </div>
               <div style={{ display: "flex" }}>
                 <Tooltip content="Add Description">
@@ -248,7 +281,12 @@ export default function QuestionsEditor({ questions: _questions }: TProps) {
             />{" "}
             <span style={{ fontSize: "14px" }}>Insert Question</span>
           </Link>
-          <Button size="sm" css={{ width: "2.4rem" }}>
+          <Button
+            flat
+            size="sm"
+            css={{ width: "2.4rem" }}
+            onClick={() => console.log(questions)}
+          >
             Submit
           </Button>
         </div>
