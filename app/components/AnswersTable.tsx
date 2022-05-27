@@ -62,7 +62,6 @@ export default function AnswersTable({ questions, respondents }: IProps) {
       <Spacer />
       {tableData.length ? (
         <Table
-          aria-label="Example static collection table with multiple selection"
           selectionMode="multiple"
           striped
           css={{
@@ -73,7 +72,6 @@ export default function AnswersTable({ questions, respondents }: IProps) {
         >
           <Table.Header>
             <Table.Column key="name">Respondent</Table.Column>
-            {/* @ts-ignore */}
             {questions.map((q) => (
               <Table.Column key={q.id}>{q.name}</Table.Column>
             ))}
@@ -89,7 +87,6 @@ export default function AnswersTable({ questions, respondents }: IProps) {
                     </Text>
                   </div>
                 </Table.Cell>
-                {/* @ts-ignore */}
                 {data.answers.map((a) => (
                   <Table.Cell key={a.id}>{a.data}</Table.Cell>
                 ))}

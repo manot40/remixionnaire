@@ -10,46 +10,70 @@ import {
   Checkbox,
   Button,
   Link,
+  Divider,
+  Tooltip,
+  Switch,
+  Text,
 } from "@nextui-org/react";
 import { useState } from "react";
+import cuid from "cuid";
 
 type TProps = {
-  meta: QuestionnaireData["meta"];
   questions: QuestionnaireData["questions"];
 };
 
-export default function QuestionsEditor({
-  meta: _meta,
-  questions: _questions,
-}: TProps) {
+export default function QuestionsEditor({ questions: _questions }: TProps) {
   // Main state
-  const [meta, setMeta] = useState(_meta);
   const [questions, setQuestions] = useState(_questions);
 
-  const listChanged = (newval: string, qIdx: number, cIdx: number) => {
+  const optionAdd = (id: string) => {
+    const idx = questions.findIndex((q) => q.id === id);
+    if (idx !== -1) {
+      const tmp = [...questions];
+      // @ts-ignore
+      tmp[idx] = { ...tmp[idx], list: [...tmp[idx].list, ""] };
+      setQuestions(tmp);
+    }
+  };
+
+  const optionChange = (newval: string, qIdx: number, cIdx: number) => {
     const tmp = [...questions];
     // @ts-ignore
     tmp[qIdx].list[cIdx] = newval;
     setQuestions(tmp);
   };
 
-  const listAdded = (id: string) => {
+  const optionRemove = (id: string) => {
     const idx = questions.findIndex((q) => q.id === id);
     if (idx !== -1) {
-      const tmp2 = [...questions];
+      const tmp = [...questions];
       // @ts-ignore
-      tmp2[idx] = { ...tmp2[idx], list: [...tmp2[idx].list, ""] };
-      setQuestions(tmp2);
+      tmp[idx] = { ...tmp[idx], list: tmp[idx].list?.slice(0, -1) };
+      setQuestions(tmp);
     }
   };
 
-  const listRemoved = (id: string) => {
+  const insertQuestion = () => {
+    const tmp = [...questions];
+    tmp.push({
+      id: cuid(),
+      name: "",
+      order: tmp.length + 1,
+      type: "SHORT_TEXT",
+      list: null,
+      questionnaireId: "",
+      updatedAt: new Date(),
+      answers: [],
+    });
+    setQuestions(tmp);
+  };
+
+  const deleteQuestion = (id: string) => {
     const idx = questions.findIndex((q) => q.id === id);
     if (idx !== -1) {
-      const tmp2 = [...questions];
-      // @ts-ignore
-      tmp2[idx] = { ...tmp2[idx], list: tmp2[idx].list.slice(0, -1) };
-      setQuestions(tmp2);
+      const tmp = [...questions];
+      tmp.splice(idx, 1);
+      setQuestions(tmp);
     }
   };
 
@@ -63,23 +87,23 @@ export default function QuestionsEditor({
       return <Textarea underlined placeholder="Text Answer Input" />;
     }
     if (type === "RADIO") {
-      return list?.map((choice, cIdx) => (
+      return list?.map((option, oIdx) => (
         <div
-          key={cIdx}
+          key={oIdx}
           className="w-full"
           style={{ display: "flex", marginTop: "18px", alignItems: "center" }}
         >
-          <Radio disabled value={choice} size="sm" />
+          <Radio disabled value={option} size="sm" />
           <Spacer x={0.25} />
           <Input
             underlined
             fullWidth
             required
-            value={choice}
-            placeholder={`Option ${cIdx + 1}`}
-            onChange={(e) => listChanged(e.target.value, qIdx, cIdx)}
+            value={option}
+            placeholder={`Option ${oIdx + 1}`}
+            onChange={(e) => optionChange(e.target.value, qIdx, oIdx)}
           />
-          <Button color="error" light auto onClick={() => listRemoved(id)}>
+          <Button color="error" light auto onClick={() => optionRemove(id)}>
             {/* @ts-ignore */}
             <ion-icon name="close" style={{ fontSize: "21px" }} />
           </Button>
@@ -87,9 +111,9 @@ export default function QuestionsEditor({
       ));
     }
     if (type === "CHECKBOX") {
-      return list?.map((choice, cIdx) => (
+      return list?.map((option, oIdx) => (
         <div
-          key={cIdx}
+          key={oIdx}
           className="w-full"
           style={{ display: "flex", marginTop: "18px", alignItems: "center" }}
         >
@@ -99,11 +123,11 @@ export default function QuestionsEditor({
             underlined
             fullWidth
             required
-            value={choice}
-            placeholder={`Option ${cIdx + 1}`}
-            onChange={(e) => listChanged(e.target.value, qIdx, cIdx)}
+            value={option}
+            placeholder={`Option ${oIdx + 1}`}
+            onChange={(e) => optionChange(e.target.value, qIdx, oIdx)}
           />
-          <Button color="error" light auto onClick={() => listRemoved(id)}>
+          <Button color="error" light auto onClick={() => optionRemove(id)}>
             {/* @ts-ignore */}
             <ion-icon name="close" style={{ fontSize: "21px" }} />
           </Button>
@@ -116,31 +140,119 @@ export default function QuestionsEditor({
     <Container sm>
       {questions.map((question, idx) => (
         <Card
-          css={{ marginBottom: "$10", padding: "12px 6px 24px 6px" }}
-          key={question.id}
+          css={{ marginBottom: "$10", padding: "12px 6px 0px 6px" }}
+          key={idx}
         >
-          <Input
-            underlined
-            animated={false}
-            placeholder={question.name}
-            style={{ fontSize: "1rem", fontWeight: 600 }}
-            className="question-title-input"
-          />
-          <Spacer y={0.5} />
-          {questionContentRender(idx)}
-          {question.list && (
-            <>
-              <Spacer />
-              <Link
-                onClick={() => listAdded(question.id)}
-                css={{ fontSize: "14px" }}
-              >
-                + Insert new
-              </Link>
-            </>
-          )}
+          <Card.Body>
+            <Input
+              underlined
+              animated={false}
+              placeholder={question.name || "Question Name"}
+              style={{ fontSize: "1rem", fontWeight: 600 }}
+              className="question-title-input"
+            />
+            <Spacer y={0.5} />
+            {questionContentRender(idx)}
+            {question.list && (
+              <>
+                <Spacer />
+                <Link
+                  onClick={() => optionAdd(question.id)}
+                  css={{ fontSize: "14px" }}
+                >
+                  + Insert new
+                </Link>
+              </>
+            )}
+            <Spacer y={question.list ? 1 : 1.5} />
+          </Card.Body>
+          <Divider />
+          <Card.Footer>
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "12px 0px 12px 0px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Text size={14} css={{ margin: "1px 8px 0px 0px" }}>
+                  Required
+                </Text>
+                <Switch onChange={(e) => console.log(e.target)} size="sm" />
+              </div>
+              <div style={{ display: "flex" }}>
+                <Tooltip content="Add Description">
+                  <Link color="text">
+                    {/* @ts-ignore */}
+                    <ion-icon
+                      name="text-outline"
+                      style={{ fontSize: "21px", marginRight: "6px" }}
+                    />
+                  </Link>
+                </Tooltip>
+                <Spacer x={1.5} />
+                <Tooltip color="primary" content="Duplicate Question">
+                  <Link>
+                    {/* @ts-ignore */}
+                    <ion-icon
+                      name="copy-outline"
+                      style={{ fontSize: "24px", marginRight: "6px" }}
+                    />
+                  </Link>
+                </Tooltip>
+                <Spacer x={0.5} />
+                <Tooltip color="error" content="Delete Question">
+                  <Link
+                    onClick={() => deleteQuestion(question.id)}
+                    color={"error"}
+                  >
+                    {/* @ts-ignore */}
+                    <ion-icon
+                      name="trash-outline"
+                      style={{ fontSize: "24px", marginRight: "6px" }}
+                    />
+                  </Link>
+                </Tooltip>
+              </div>
+            </div>
+          </Card.Footer>
         </Card>
       ))}
+      <Card
+        css={{
+          bottom: "16px",
+          left: "50%",
+          transform: `translateX(${-50}%)`,
+          width: "24rem",
+          position: "fixed",
+          zIndex: 9999,
+          background: "$background",
+          border: "1px solid $border",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Link onClick={insertQuestion} css={{ alignItems: "center" }}>
+            {/* @ts-ignore */}
+            <ion-icon
+              name="add"
+              style={{ fontSize: "18px", marginRight: "6px" }}
+            />{" "}
+            <span style={{ fontSize: "14px" }}>Insert Question</span>
+          </Link>
+          <Button size="sm" css={{ width: "2.4rem" }}>
+            Submit
+          </Button>
+        </div>
+      </Card>
     </Container>
   );
 }

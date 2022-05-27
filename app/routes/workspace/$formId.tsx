@@ -79,8 +79,8 @@ export default function FormDetailLayout() {
               </Container>
             </Container>
             <Spacer y={1.5} />
-            <QuestionsEditor meta={data.meta} questions={data.questions} />
-            <Spacer y={3} />
+            <QuestionsEditor questions={data.questions} />
+            <Spacer y={4.2} />
           </div>
         );
       case "answers":
