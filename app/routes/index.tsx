@@ -8,6 +8,7 @@ import {
   Spacer,
   Text,
 } from "@nextui-org/react";
+import { isSlug } from "cuid";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { json, redirect } from "@remix-run/node";
@@ -27,7 +28,7 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const code = formData.get("code");
 
-  if (typeof code !== "string" || code.length < 6) {
+  if (typeof code !== "string" || !isSlug(code)) {
     return json<ActionData>({ error: { message: "Invitation code invalid" } });
   }
 

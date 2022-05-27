@@ -6,23 +6,26 @@ import type {
   Answer,
 } from "@prisma/client";
 
-import {
-  useLoaderData,
-  useSearchParams,
-} from "@remix-run/react";
+// Remix Libs
+import { useLoaderData, useSearchParams } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 
-import { Container, Link, Text } from "@nextui-org/react";
+// React Libs
+import { Container, Link, Spacer, Text } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
 
-import { getUserId } from "~/session.server";
-import { getQuestionnaire } from "~/models/questionnaire.server";
-import { getAnswers } from "~/models/answer.server";
+// Custom libs and helper
 import { objArrSort } from "~/libs";
-import AnswersTable from "~/components/AnswersTable";
+import { getUserId } from "~/session.server";
+import { getAnswers } from "~/models/answer.server";
+import { getQuestionnaire } from "~/models/questionnaire.server";
 
-type LoaderData = {
+// UI Components
+import AnswersTable from "~/components/AnswersTable";
+import QuestionsEditor from "~/components/QuestionsEditor";
+
+export type LoaderData = {
   meta: Questionnaire;
   respondents: Respondent[];
   questions: Question[];
@@ -66,19 +69,24 @@ export default function FormDetailLayout() {
     switch (tab) {
       case "questions":
         return (
-          <Container
-            className="max-w-full"
-            css={{
-              backgroundColor: `#${data.meta.theme}`,
-              padding: "4rem 0px 4rem 0px",
-            }}
-          >
-            <Container sm>
-              <Text css={{ color: "#fff" }} h1>
-                {data.meta.name}
-              </Text>
+          <div>
+            <Container
+              className="max-w-full"
+              css={{
+                backgroundColor: `#${data.meta.theme}`,
+                padding: "4rem 0px 4rem 0px",
+              }}
+            >
+              <Container sm>
+                <Text css={{ color: "#fff" }} h1>
+                  {data.meta.name}
+                </Text>
+              </Container>
             </Container>
-          </Container>
+            <Spacer y={1.5} />
+            <QuestionsEditor meta={data.meta} questions={data.questions} />
+            <Spacer y={3} />
+          </div>
         );
       case "answers":
         return (

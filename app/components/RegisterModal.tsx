@@ -1,7 +1,6 @@
 import {
   Modal,
   Text,
-  Container,
   Spacer,
   Input,
   Button,

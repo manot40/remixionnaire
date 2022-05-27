@@ -62,7 +62,7 @@ model Questionnaire {
 model Question {
   id          String       @id @default(cuid())
   name        String
-  description String?
+  order       Int?
   type        QuestionType @default(SHORT_TEXT)
   list        Json?
   answers     Answer[]

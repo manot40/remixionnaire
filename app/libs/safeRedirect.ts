@@ -7,7 +7,7 @@ const DEFAULT_REDIRECT = "/";
  * @param {string} to The redirect destination
  * @param {string} defaultRedirect The redirect to use if the to is unsafe.
  */
- export default function safeRedirect(
+ export function safeRedirect(
   to: FormDataEntryValue | string | null | undefined,
   defaultRedirect: string = DEFAULT_REDIRECT
 ) {

@@ -1,5 +1,5 @@
 import type { User, Questionnaire } from "@prisma/client";
-import cuid from "cuid";
+import cuid, { isCuid } from "cuid";
 
 import { prisma } from "~/db.server";
 
@@ -9,8 +9,11 @@ export function getQuestionnaire({
 }: Pick<Questionnaire, "code"> & {
   userId?: User["id"];
 }) {
+  let _code, id;
+  isCuid(code) ? (id = code) : (_code = code);
+  
   return prisma.questionnaire.findFirst({
-    where: { code, authorId: userId },
+    where: { id, code: _code, authorId: userId },
     include: { questions: true, respondents: true },
   });
 }

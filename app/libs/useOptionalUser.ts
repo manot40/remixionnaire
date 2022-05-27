@@ -1,11 +1,11 @@
 import type { User } from "@prisma/client";
-import useMatchesData from "./useMatchesData";
+import { useMatchesData } from "./useMatchesData";
 
 function isUser(user: any): user is User {
   return user && typeof user === "object" && typeof user.email === "string";
 }
 
-export default function useOptionalUser(): User | undefined {
+export function useOptionalUser(): User | undefined {
   const data = useMatchesData("root");
   if (!data || !isUser(data.user)) {
     return undefined;

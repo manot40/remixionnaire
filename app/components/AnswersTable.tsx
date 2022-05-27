@@ -21,22 +21,35 @@ export default function AnswersTable({
   respondents,
   answers,
 }: IProps) {
+  const _questions = objArrSort(questions, "updatedAt");
+
   const answersOf = (id: string) =>
     objArrSort(
       answers.filter((answer) => answer.respondentId === id),
       "id"
     );
+
   const tableData = respondents.map((r) => {
     const answers = answersOf(r.id);
     return {
       id: r.id,
       name: r.name,
       email: r.email,
-      answers: answers.map((a) => {
-        return { id: a.id, data: a.answer };
+      answers: _questions.map((_, i) => {
+        const answer = answers[i];
+        const rand = Math.random().toString();
+        return {
+          id: answer?.id || rand,
+          data: answer?.answer || (
+            <Text small i>
+              (no answer)
+            </Text>
+          ),
+        };
       }),
     };
   });
+
   return (
     <Container lg>
       <Spacer y={1.5} />
@@ -71,13 +84,9 @@ export default function AnswersTable({
           }}
         >
           <Table.Header>
-            <Table.Column key="name">
-              Respondent
-            </Table.Column>
-            {questions.map((q) => (
-              <Table.Column key={`col-${q.id}`}>
-                {q.name}
-              </Table.Column>
+            <Table.Column key="name">Respondent</Table.Column>
+            {_questions.map((q) => (
+              <Table.Column key={`col-${q.id}`}>{q.name}</Table.Column>
             ))}
           </Table.Header>
           <Table.Body>
@@ -107,7 +116,9 @@ export default function AnswersTable({
             alignItems: "center",
           }}
         >
-          <Text css={{color: "$accents6", letterSpacing: "$normal"}}>No answers yet</Text>
+          <Text css={{ color: "$accents6", letterSpacing: "$normal" }}>
+            No answers yet
+          </Text>
         </Card>
       )}
       <Spacer y={2.5} />

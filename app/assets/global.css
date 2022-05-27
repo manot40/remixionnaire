@@ -37,6 +37,10 @@
   font-size: 0.9rem;
 }
 
+.question-title-input>label::after {
+  background-color: transparent !important;
+}
+
 .option-selected::before {
   content: "";
   display: block;

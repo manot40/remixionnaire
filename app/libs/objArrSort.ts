@@ -1,4 +1,4 @@
-export default function objArrSort<T = unknown>(
+export function objArrSort<T = unknown>(
   arr: T[],
   key: keyof T,
   order: "asc" | "desc" = "asc"
