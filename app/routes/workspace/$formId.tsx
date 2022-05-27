@@ -1,10 +1,5 @@
 import type { LoaderFunction } from "@remix-run/node";
-import type {
-  Questionnaire,
-  Question,
-  Respondent,
-  Answer,
-} from "@prisma/client";
+import type { QuestionnaireData } from "~/types";
 
 // Remix Libs
 import { useLoaderData, useSearchParams } from "@remix-run/react";
@@ -25,13 +20,6 @@ import { getQuestionnaire } from "~/models/questionnaire.server";
 import AnswersTable from "~/components/AnswersTable";
 import QuestionsEditor from "~/components/QuestionsEditor";
 
-export type LoaderData = {
-  meta: Questionnaire;
-  respondents: Respondent[];
-  questions: Question[];
-  answers: Answer[];
-};
-
 export const loader: LoaderFunction = async ({ request, params }) => {
   const userId = (await getUserId(request)) || "";
 
@@ -43,17 +31,24 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   const answers = await getAnswers({ questionnaireId: qre.id });
 
-  return json<LoaderData>({
-    // @ts-ignore
+  const questions = objArrSort(qre.questions, "order").map(
+    (question) =>
+      ({
+        ...question,
+        answers: answers.filter((answer) => answer.questionId === question.id),
+      } as QuestionnaireData["questions"][number])
+  );
+
+  return json<QuestionnaireData>({
+    // @ts-expect-error
     meta: { ...qre, questions: undefined, respondents: undefined },
     respondents: qre.respondents,
-    questions: qre.questions,
-    answers,
+    questions,
   });
 };
 
 export default function FormDetailLayout() {
-  const data = useLoaderData() as LoaderData;
+  const data = useLoaderData() as QuestionnaireData;
   // const actionData = useActionData();
 
   const [searchParams] = useSearchParams();
@@ -93,7 +88,6 @@ export default function FormDetailLayout() {
           <AnswersTable
             respondents={objArrSort(data.respondents, "id")}
             questions={objArrSort(data.questions, "id")}
-            answers={data.answers}
           />
         );
     }

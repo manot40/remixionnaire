@@ -1,4 +1,5 @@
-import type { Answer, Question, Respondent } from "@prisma/client";
+import type { Respondent } from "@prisma/client";
+import type { QuestionnaireData } from "~/types";
 
 import {
   Container,
@@ -8,36 +9,23 @@ import {
   Button,
   Card,
 } from "@nextui-org/react";
-import { objArrSort } from "~/libs";
 
-interface IProps {
-  questions: Question[];
+type IProps = {
+  questions: QuestionnaireData["questions"];
   respondents: Respondent[];
-  answers: Answer[];
-}
+};
 
-export default function AnswersTable({
-  questions,
-  respondents,
-  answers,
-}: IProps) {
-  const _questions = objArrSort(questions, "updatedAt");
-
-  const answersOf = (id: string) =>
-    objArrSort(
-      answers.filter((answer) => answer.respondentId === id),
-      "id"
-    );
-
+export default function AnswersTable({ questions, respondents }: IProps) {
   const tableData = respondents.map((r) => {
-    const answers = answersOf(r.id);
     return {
       id: r.id,
       name: r.name,
       email: r.email,
-      answers: _questions.map((_, i) => {
-        const answer = answers[i];
-        const rand = Math.random().toString();
+      answers: questions.map((_) => {
+        const rand = window.crypto.randomUUID();
+        const answer = _.answers.find(
+          (a) => a.respondentId === r.id && a.questionId === _.id
+        );
         return {
           id: answer?.id || rand,
           data: answer?.answer || (
@@ -85,14 +73,15 @@ export default function AnswersTable({
         >
           <Table.Header>
             <Table.Column key="name">Respondent</Table.Column>
-            {_questions.map((q) => (
-              <Table.Column key={`col-${q.id}`}>{q.name}</Table.Column>
+            {/* @ts-ignore */}
+            {questions.map((q) => (
+              <Table.Column key={q.id}>{q.name}</Table.Column>
             ))}
           </Table.Header>
           <Table.Body>
             {tableData.map((data) => (
-              <Table.Row key={`row-${data.id}`}>
-                <Table.Cell key={`cell-${data.id}`}>
+              <Table.Row key={data.id}>
+                <Table.Cell>
                   <div className="inline-name-wrapper">
                     <Text b>{data.name}</Text>
                     <Text size={12} css={{ color: "$gray600" }}>
@@ -100,8 +89,9 @@ export default function AnswersTable({
                     </Text>
                   </div>
                 </Table.Cell>
+                {/* @ts-ignore */}
                 {data.answers.map((a) => (
-                  <Table.Cell key={`cell-${a.id}`}>{a.data}</Table.Cell>
+                  <Table.Cell key={a.id}>{a.data}</Table.Cell>
                 ))}
               </Table.Row>
             ))}
