@@ -10,13 +10,14 @@ import {
 
 type TProps = {
   onInsert: (arg?: any) => void;
+  onSubmit: () => void;
 };
 
 const IconButton = ({
   onInsert,
   icon,
   tooltip,
-}: TProps & { icon: string; tooltip: string }) => (
+}: Omit<TProps, "onSubmit"> & { icon: string; tooltip: string }) => (
   <Tooltip css={{ zIndex: 1000000 }} content={tooltip}>
     <Link color="text" onClick={onInsert}>
       {/* @ts-ignore */}
@@ -25,7 +26,7 @@ const IconButton = ({
   </Tooltip>
 );
 
-export default function QuestionsEditorPanel({ onInsert }: TProps) {
+export default function QuestionsEditorPanel({ onInsert, onSubmit }: TProps) {
   return (
     <Card
       css={{
@@ -96,7 +97,7 @@ export default function QuestionsEditorPanel({ onInsert }: TProps) {
             </Card>
           </Popover.Content>
         </Popover>
-        <Button flat size="sm" css={{ width: "2.4rem" }} onClick={() => {}}>
+        <Button flat size="sm" css={{ width: "2.4rem" }} onClick={onSubmit}>
           Submit
         </Button>
       </div>

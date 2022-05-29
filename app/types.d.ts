@@ -1,13 +1,23 @@
-import type { Questionnaire, Respondent, Question, Answer } from "@prisma/client";
+import type {
+  Question as PQuestion,
+  Questionnaire,
+  Respondent,
+  Answer,
+} from "@prisma/client";
 
 type GenericObj<T = any> = { [key: string]: T };
 
-interface Questions extends Question {
+type ChangeType<T extends object, Keys extends keyof T, NewType> = {
+  [key in keyof T]: key extends Keys ? NewType : T[key];
+};
+
+interface Question extends ChangeType<PQuestion, "list", string[]> {
   answers: Answer[];
+  modified?: boolean;
 }
 
 type QuestionnaireData = {
   meta: Questionnaire;
   respondents: Respondent[];
-  questions: Questions[];
+  questions: Question[];
 };

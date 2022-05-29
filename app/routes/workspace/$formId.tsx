@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import type { LoaderFunction } from "@remix-run/node";
-import type { QuestionnaireData } from "~/types";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { QuestionnaireData, Question } from "~/types";
 
 // Remix Libs
 import { useLoaderData } from "@remix-run/react";
@@ -13,6 +13,11 @@ import { useSetRecoilState } from "recoil";
 import clsx from "clsx";
 
 // Custom libs and helper
+import {
+  createQuestions,
+  deleteQuestions,
+  updateQuestion,
+} from "~/models/question.server";
 import { objArrSort } from "~/libs";
 import { questionsStore } from "~/store";
 import { getUserId } from "~/session.server";
@@ -22,6 +27,47 @@ import { getQuestionnaire } from "~/models/questionnaire.server";
 // UI Components
 import AnswersTable from "~/components/AnswersTable";
 import QuestionsEditor from "~/components/QuestionsEditor";
+
+type SubmitData = {
+  modified: Omit<Question, "answers">[];
+  newEntry: Omit<Question, "answers">[];
+  removed: string[];
+};
+
+type ActionData = {
+  success?: boolean;
+  error?: string;
+};
+
+export const action: ActionFunction = async ({ request }) => {
+  switch (request.method) {
+    case "POST":
+      const formData = await request.formData();
+      const data: SubmitData = JSON.parse(formData.get("data") as string);
+      if (data.newEntry.length) {
+        const { count } = await createQuestions(data.newEntry);
+        if (count < 1)
+          return json<ActionData>({ error: "Failed to create questions" });
+      }
+      if (data.modified.length) {
+        for (const question of data.modified) {
+          try {
+            await updateQuestion(question);
+          } catch {
+            return json<ActionData>({ error: "Failed to update data" });
+          }
+        }
+      }
+      if (data.removed.length) {
+        const { count } = await deleteQuestions(data.removed);
+        if (count < 1)
+          return json<ActionData>({ error: "Failed to remove questions" });
+      }
+      return json<ActionData>({ success: true });
+    default:
+      return json<ActionData>({ error: "Method not allowed" });
+  }
+};
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const userId = (await getUserId(request)) || "";
@@ -39,6 +85,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       ({
         ...question,
         answers: answers.filter((answer) => answer.questionId === question.id),
+        modified: false,
       } as QuestionnaireData["questions"][number])
   );
 
@@ -52,15 +99,14 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 export default function FormDetailLayout() {
   const data = useLoaderData() as QuestionnaireData;
-  // const actionData = useActionData();
 
   const [tab, setTab] = useState("questions");
 
-  const setQuestion = useSetRecoilState(questionsStore);
+  const setQuestions = useSetRecoilState(questionsStore);
 
   useEffect(() => {
     document.title = `Remixionnaire | ${data.meta.name}`;
-    setQuestion(data.questions);
+    setQuestions(data.questions);
   }, []);
 
   const renderContent = () => {
@@ -81,7 +127,7 @@ export default function FormDetailLayout() {
               </Container>
             </Container>
             <Spacer y={1.5} />
-            <QuestionsEditor questions={data.questions} />
+            <QuestionsEditor meta={data.meta} />
             <Spacer y={4.2} />
           </div>
         );

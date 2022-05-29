@@ -19,9 +19,7 @@ import { getQuestionnaire } from "~/models/questionnaire.server";
 import { useOptionalUser } from "~/libs";
 
 type ActionData = {
-  error: {
-    message: string;
-  };
+  error: string;
 };
 
 export const action: ActionFunction = async ({ request }) => {
@@ -29,14 +27,14 @@ export const action: ActionFunction = async ({ request }) => {
   const code = formData.get("code");
 
   if (typeof code !== "string" || !isSlug(code)) {
-    return json<ActionData>({ error: { message: "Invitation code invalid" } });
+    return json<ActionData>({ error: "Invitation code invalid" });
   }
 
   const qre = await getQuestionnaire({ code });
 
   if (!qre) {
     return json<ActionData>({
-      error: { message: "Invitation code not found" },
+      error: "Invitation code not found",
     });
   } else {
     return redirect(`/r/${qre.id}`);
@@ -50,7 +48,7 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (action?.error) toast.error(action.error.message);
+    if (action?.error) toast.error(action.error);
     setIsLoading(false);
   }, [action]);
 
