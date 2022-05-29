@@ -18,27 +18,31 @@ export default function SelectComponent({
   className,
   options,
   placeholder,
+  selected,
   style,
   onChange = () => {},
 }: TProps) {
+  const initialValue = options.find((x) => x.value === selected)?.label || "";
+
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [search, setSearch] = useState(initialValue);
 
   const selectionChanged = (option: Option) => {
     setSearch(option.label);
     onChange(option.value);
+    setIsFocused(false);
     setOpen(false);
   };
 
-  const reset = () => {
+  const enter = () => {
     setSearch("");
     setOpen(!open);
   };
 
   const leave = () => {
-    console.log(isFocused);
     if (!isFocused) {
+      initialValue && setSearch(initialValue);
       setOpen(false);
       setIsFocused(false);
     }
@@ -58,6 +62,9 @@ export default function SelectComponent({
             borderBottom: "1px solid $border",
             cursor: "pointer",
             fontSize: "14px",
+            "&:hover": {
+              backgroundColor: "$background",
+            },
           }}
         >
           {option.label}
@@ -65,7 +72,7 @@ export default function SelectComponent({
       ))
     ) : (
       <Text
-        onClick={reset}
+        onClick={enter}
         css={{
           padding: "5px 0 8px 0",
           fontSize: "14px",
@@ -79,13 +86,12 @@ export default function SelectComponent({
   };
 
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative", maxWidth: "max-content" }}>
       <Input
         bordered
-        rounded
         animated={false}
         placeholder={placeholder || "Select item"}
-        onClick={reset}
+        onClick={enter}
         onBlur={leave}
         value={search}
         className={className}
@@ -95,6 +101,7 @@ export default function SelectComponent({
         <Container
           onMouseOver={() => setIsFocused(true)}
           onMouseLeave={() => setIsFocused(false)}
+          className="selection"
           css={{
             padding: "0",
             width: "100%",
@@ -104,7 +111,7 @@ export default function SelectComponent({
             position: "absolute",
             zIndex: 9999,
             overflow: "auto",
-            marginTop: "4px",
+            marginTop: "8px",
             border: "1px solid $border",
           }}
         >

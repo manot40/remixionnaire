@@ -70,3 +70,8 @@
 .invert {
   filter: invert(1);
 }
+
+/* width */
+.selection::-webkit-scrollbar {
+  display: none;
+}

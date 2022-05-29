@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import type { LoaderFunction } from "@remix-run/node";
 import type { QuestionnaireData } from "~/types";
 
 // Remix Libs
-import { useLoaderData, useSearchParams } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 
 // React Libs
@@ -53,20 +54,14 @@ export default function FormDetailLayout() {
   const data = useLoaderData() as QuestionnaireData;
   // const actionData = useActionData();
 
-  const [searchParams] = useSearchParams();
   const [tab, setTab] = useState("questions");
 
   const setQuestion = useSetRecoilState(questionsStore);
 
   useEffect(() => {
+    document.title = `Remixionnaire | ${data.meta.name}`;
     setQuestion(data.questions);
   }, []);
-
-  useEffect(() => {
-    document.title = `Remixionnaire | ${data.meta.name}`;
-    const tabQuery = searchParams.get("tab");
-    if (tabQuery) setTab(tabQuery);
-  }, [searchParams]);
 
   const renderContent = () => {
     switch (tab) {
@@ -81,12 +76,8 @@ export default function FormDetailLayout() {
               }}
             >
               <Container sm>
-                <Text h1>
-                  {data.meta.name}
-                </Text>
-                <Text>
-                  {data.meta.description}
-                </Text>
+                <Text h1>{data.meta.name}</Text>
+                <Text>{data.meta.description}</Text>
               </Container>
             </Container>
             <Spacer y={1.5} />
