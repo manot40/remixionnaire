@@ -111,7 +111,6 @@ export default function SelectComponent({
             borderRadius: "$lg",
             position: "absolute",
             zIndex: 9999,
-            overflow: "auto",
             marginTop: "8px",
             border: "1px solid $border",
           }}

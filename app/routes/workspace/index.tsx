@@ -11,6 +11,7 @@ import {
 } from "@nextui-org/react";
 import {
   useActionData,
+  useFetcher,
   useLoaderData,
   useNavigate,
   useSearchParams,
@@ -109,6 +110,7 @@ export const action: LoaderFunction = async ({ request }) => {
 export default function WorkspaceIndex() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const fetcher = useFetcher();
 
   const data = useLoaderData() as LoaderData;
   const actionData = useActionData() as ActionData;
@@ -130,8 +132,13 @@ export default function WorkspaceIndex() {
       const succ = actionData.success;
       if (succ.message) toast.success(succ.message);
     }
-    setIsLoading(false);
-  }, [actionData]);
+    fetcher.state === "idle" && setIsLoading(false);
+  }, [actionData, fetcher.state]);
+
+  const deleteEntry = (id: string) => {
+    setIsLoading(true);
+    fetcher.submit({ id }, { method: "delete" });
+  };
 
   return (
     <Container sm>
@@ -185,9 +192,9 @@ export default function WorkspaceIndex() {
                     </Text>
                   </div>
                   <ConfirmPop
-                    param={qre.id}
                     colorScheme="error"
                     isLoading={isLoading}
+                    onConfirm={() => deleteEntry(qre.id)}
                   />
                 </Row>
               </Card.Footer>

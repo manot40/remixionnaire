@@ -65,7 +65,7 @@ model Question {
   description String?      @db.LongText
   order       Int?
   type        QuestionType @default(SHORT_TEXT)
-  list        Json?
+  list        Json?        @default("[]")
   required    Boolean      @default(false)
   answers     Answer[]
 

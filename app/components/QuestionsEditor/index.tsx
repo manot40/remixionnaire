@@ -2,16 +2,14 @@ import type { QuestionnaireData, Question } from "~/types";
 
 import {
   Container,
-  Card,
   Spacer,
   Input,
   Textarea,
   Radio,
   Checkbox,
+  Tooltip,
   Button,
   Link,
-  Divider,
-  Tooltip,
   Switch,
   Text,
 } from "@nextui-org/react";
@@ -24,6 +22,8 @@ import { useFetcher } from "@remix-run/react";
 import Select from "../Select";
 import { questionsStore } from "~/store";
 import QuestionsEditorPanel from "./panel";
+import QuestionCard from "../QuestionCard";
+import ConfirmPop from "../ConfirmPop";
 
 type TProps = {
   meta: QuestionnaireData["meta"];
@@ -65,7 +65,7 @@ export default function QuestionsEditor({ meta }: TProps) {
         type,
         id: cuid(),
         name: "",
-        order: 45,
+        order: questions.length,
         required: false,
         description: null,
         list: [],
@@ -111,6 +111,7 @@ export default function QuestionsEditor({ meta }: TProps) {
 
   const submitChange = () => {
     const _questions = [...questions];
+    const _problematic = [] as number[];
 
     const submitData = {
       modified: [] as typeof _questions,
@@ -119,21 +120,35 @@ export default function QuestionsEditor({ meta }: TProps) {
     };
 
     _questions.forEach((q, idx) => {
-      if (typeof q.modified === "boolean") {
-        if (q.modified)
-          submitData.modified.push({
-            ...q,
-            modified: undefined,
-          });
+      const isListOkay = q.list?.find((o) => o === "") === undefined;
+      if (q.name && isListOkay) {
+        if (typeof q.modified === "boolean") {
+          q.modified &&
+            submitData.modified.push({
+              ...q,
+              modified: undefined,
+            });
+        } else {
+          submitData.newEntry.push(q);
+        }
+        _questions[idx] = { ...q, modified: false };
       } else {
-        submitData.newEntry.push(q);
+        _problematic.push(idx);
       }
-      _questions[idx] = { ...q, modified: false };
     });
 
-    fetcher.submit({ data: JSON.stringify(submitData) }, { method: "post" });
+    const multiInvalid =
+      _problematic.length > 1 ? `and ${_problematic.length - 1} other` : "";
+    _problematic.length
+      ? toast.error(
+          `Question #${_problematic[0] + 1} ${multiInvalid} has invalid data`
+        )
+      : finish();
 
-    setQuestions(_questions);
+    function finish() {
+      fetcher.submit({ data: JSON.stringify(submitData) }, { method: "post" });
+      setQuestions(_questions);
+    }
   };
 
   const questionContent = (qIdx: number) => {
@@ -164,6 +179,7 @@ export default function QuestionsEditor({ meta }: TProps) {
             required
             value={option}
             placeholder={`Option ${oIdx + 1}`}
+            status={option ? "default" : "error"}
             onChange={(e) => optionChange(e.target.value, qIdx, oIdx)}
           />
           <Button
@@ -185,53 +201,41 @@ export default function QuestionsEditor({ meta }: TProps) {
     <Container sm>
       {questions.length ? (
         questions.map((question, idx) => (
-          <Card
-            css={{ marginBottom: "$10", padding: "12px 6px 0px 6px" }}
-            key={idx}
-          >
-            <Card.Body style={{ minHeight: "12rem" }}>
-              <Container
-                wrap="nowrap"
-                css={{
-                  width: "100%",
-                  padding: "$0",
-                  display: "block",
-                  "@sm": {
-                    display: "flex",
-                  },
-                }}
-              >
-                <Container css={{ padding: 0 }}>
-                  <QuestionMetaInput
-                    value={question.name}
-                    placeholder="Question"
-                    style={{ fontSize: "1rem", fontWeight: 600 }}
-                    onChange={(name) => changePrimitive(idx, { name })}
-                  />
-                  {typeof question.description === "string" && (
-                    <QuestionMetaInput
-                      value={question.description}
-                      style={{ fontSize: ".75rem" }}
-                      placeholder="Question Description"
-                      onChange={(description) =>
-                        changePrimitive(idx, { description })
-                      }
-                    />
-                  )}
-                </Container>
-                <Spacer y={0.5} />
-                <Select
-                  options={[
-                    { value: "SHORT_TEXT", label: "Text" },
-                    { value: "TEXT", label: "Long Text" },
-                    { value: "RADIO", label: "Radio" },
-                    { value: "CHECKBOX", label: "Checkbox" },
-                  ]}
-                  selected={question.type}
-                  placeholder="Question Type"
-                  onChange={(e) => changePrimitive(idx, { type: e as any })}
+          <QuestionCard key={idx}>
+            <QuestionCard.Header>
+              <Container css={{ padding: 0 }}>
+                <QuestionMetaInput
+                  status={question.name ? "default" : "error"}
+                  value={question.name}
+                  placeholder="Question"
+                  style={{ fontSize: "1rem", fontWeight: 600 }}
+                  onChange={(name) => changePrimitive(idx, { name })}
                 />
+                {typeof question.description === "string" && (
+                  <QuestionMetaInput
+                    value={question.description}
+                    style={{ fontSize: ".75rem" }}
+                    placeholder="Question Description"
+                    onChange={(description) =>
+                      changePrimitive(idx, { description })
+                    }
+                  />
+                )}
               </Container>
+              <Spacer y={0.5} />
+              <Select
+                options={[
+                  { value: "SHORT_TEXT", label: "Text" },
+                  { value: "TEXT", label: "Long Text" },
+                  { value: "RADIO", label: "Radio" },
+                  { value: "CHECKBOX", label: "Checkbox" },
+                ]}
+                selected={question.type}
+                placeholder="Question Type"
+                onChange={(e) => changePrimitive(idx, { type: e as any })}
+              />
+            </QuestionCard.Header>
+            <QuestionCard.Body>
               {/TEXT/.test(question.type) && <Spacer />}
               {questionContent(idx)}
               {!/TEXT/.test(question.type) && (
@@ -246,58 +250,52 @@ export default function QuestionsEditor({ meta }: TProps) {
                 </>
               )}
               <Spacer y={!/TEXT/.test(question.type) ? 1 : 1.5} />
-            </Card.Body>
-            <Divider />
-            <Card.Footer>
-              <div
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "12px 0px 12px 0px",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <Text size={14} css={{ margin: "1px 8px 0px 0px" }}>
-                    Required
-                  </Text>
-                  <Switch
-                    size="sm"
-                    checked={question.required}
-                    onChange={({ target }) =>
-                      changePrimitive(idx, { required: target.checked })
-                    }
-                  />
-                </div>
-                <div style={{ display: "flex" }}>
-                  <MiniIcon
-                    content="Add/Remove Description"
-                    onClick={() =>
-                      changePrimitive(idx, {
-                        description:
-                          typeof question.description === "string" ? null : "",
-                      })
-                    }
-                  />
-                  <Spacer x={0.5} />
-                  <MiniIcon
-                    color="primary"
-                    icon="copy-outline"
-                    content="Duplicate Question"
-                    onClick={() => {}}
-                  />
-                  <Spacer x={0.5} />
-                  <MiniIcon
-                    color="error"
-                    icon="trash-outline"
-                    content="Delete Question"
-                    onClick={() => deleteQuestion(idx)}
-                  />
-                </div>
+            </QuestionCard.Body>
+            <QuestionCard.Footer>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Text size={14} css={{ margin: "1px 8px 0px 0px" }}>
+                  Required
+                </Text>
+                <Switch
+                  size="sm"
+                  checked={question.required}
+                  onChange={({ target }) =>
+                    changePrimitive(idx, { required: target.checked })
+                  }
+                />
               </div>
-            </Card.Footer>
-          </Card>
+              <div style={{ display: "flex" }}>
+                <MiniIcon
+                  content="Add/Remove Description"
+                  onClick={() =>
+                    changePrimitive(idx, {
+                      description:
+                        typeof question.description === "string" ? null : "",
+                    })
+                  }
+                />
+                <Spacer x={0.5} />
+                <MiniIcon
+                  color="primary"
+                  icon="copy-outline"
+                  content="Duplicate Question"
+                  onClick={() => {}}
+                />
+                <Spacer x={0.5} />
+                <ConfirmPop
+                  colorScheme="error"
+                  onConfirm={() => deleteQuestion(idx)}
+                  content={
+                    <MiniIcon
+                      color="error"
+                      icon="trash-outline"
+                      content="Delete Question"
+                    />
+                  }
+                />
+              </div>
+            </QuestionCard.Footer>
+          </QuestionCard>
         ))
       ) : (
         <Text
@@ -312,7 +310,11 @@ export default function QuestionsEditor({ meta }: TProps) {
           Click on the + button to add a question.
         </Text>
       )}
-      <QuestionsEditorPanel onInsert={insertQuestion} onSubmit={submitChange} />
+      <QuestionsEditorPanel
+        isLoading={fetcher.state === "loading"}
+        onInsert={insertQuestion}
+        onSubmit={submitChange}
+      />
     </Container>
   );
 }
@@ -326,16 +328,19 @@ function QuestionMetaInput({
   style,
   placeholder,
   value,
+  status,
 }: {
   onChange: (value: string) => void;
   placeholder?: string;
   value?: any;
+  status?: "default" | "error";
   style?: React.CSSProperties;
 }) {
   return (
     <Input
       fullWidth
       underlined
+      status={status}
       animated={false}
       className="question-title-input"
       placeholder={placeholder}
@@ -354,7 +359,7 @@ function MiniIcon({
 }: {
   icon?: string;
   content: string;
-  onClick: () => void;
+  onClick?: () => void;
   color?:
     | "default"
     | "text"

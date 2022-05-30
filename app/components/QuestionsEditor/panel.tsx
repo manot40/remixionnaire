@@ -3,6 +3,7 @@ import {
   Card,
   Container,
   Link,
+  Loading,
   Popover,
   Spacer,
   Tooltip,
@@ -11,6 +12,7 @@ import {
 type TProps = {
   onInsert: (arg?: any) => void;
   onSubmit: () => void;
+  isLoading?: boolean;
 };
 
 const IconButton = ({
@@ -26,7 +28,11 @@ const IconButton = ({
   </Tooltip>
 );
 
-export default function QuestionsEditorPanel({ onInsert, onSubmit }: TProps) {
+export default function QuestionsEditorPanel({
+  onInsert,
+  onSubmit,
+  isLoading,
+}: TProps) {
   return (
     <Card
       css={{
@@ -97,8 +103,18 @@ export default function QuestionsEditorPanel({ onInsert, onSubmit }: TProps) {
             </Card>
           </Popover.Content>
         </Popover>
-        <Button flat size="sm" css={{ width: "2.4rem" }} onClick={onSubmit}>
-          Submit
+        <Button
+          flat
+          size="sm"
+          onClick={onSubmit}
+          disabled={isLoading}
+          css={{ width: "2.4rem" }}
+        >
+          {isLoading ? (
+            <Loading type="points-opacity" color="currentColor" size="sm" />
+          ) : (
+            "Update"
+          )}
         </Button>
       </div>
     </Card>
