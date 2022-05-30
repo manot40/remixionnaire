@@ -98,15 +98,16 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export default function FormDetailLayout() {
-  const data = useLoaderData() as QuestionnaireData;
+  const { meta, questions, respondents } = useLoaderData() as QuestionnaireData;
 
   const [tab, setTab] = useState("questions");
 
   const setQuestions = useSetRecoilState(questionsStore);
 
   useEffect(() => {
-    document.title = `Remixionnaire | ${data.meta.name}`;
-    setQuestions(data.questions);
+    document.title = `Remixionnaire | ${meta.name}`;
+    const tmp = questions.map((q) => ({ ...q, answers: undefined }));
+    setQuestions(tmp);
   }, []);
 
   const renderContent = () => {
@@ -117,27 +118,22 @@ export default function FormDetailLayout() {
             <Container
               className="max-w-full"
               css={{
-                backgroundColor: `#${data.meta.theme}`,
+                backgroundColor: `#${meta.theme}`,
                 padding: "4rem 0px 4rem 0px",
               }}
             >
               <Container sm>
-                <Text h1>{data.meta.name}</Text>
-                <Text>{data.meta.description}</Text>
+                <Text h1>{meta.name}</Text>
+                <Text>{meta.description}</Text>
               </Container>
             </Container>
             <Spacer y={1.5} />
-            <QuestionsEditor meta={data.meta} />
+            <QuestionsEditor meta={meta} />
             <Spacer y={4.2} />
           </div>
         );
       case "answers":
-        return (
-          <AnswersTable
-            respondents={data.respondents}
-            questions={data.questions}
-          />
-        );
+        return <AnswersTable respondents={respondents} questions={questions} />;
     }
   };
 

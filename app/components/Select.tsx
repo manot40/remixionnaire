@@ -11,7 +11,7 @@ type TProps = {
   onChange?: (value: string) => void;
   className?: string;
   placeholder?: string;
-  style?: CSSProperties;
+  label?: string;
 };
 
 export default function SelectComponent({
@@ -19,7 +19,7 @@ export default function SelectComponent({
   options,
   placeholder,
   selected,
-  style,
+  label,
   onChange = () => {},
 }: TProps) {
   const initialValue = options.find((x) => x.value === selected)?.label || "";
@@ -89,6 +89,7 @@ export default function SelectComponent({
     <div style={{ position: "relative", maxWidth: "max-content" }}>
       <Input
         bordered
+        label={label}
         animated={false}
         placeholder={placeholder || "Select item"}
         onClick={enter}

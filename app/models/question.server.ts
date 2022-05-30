@@ -10,9 +10,10 @@ export function createQuestions(questions: Omit<Question, "id">[]) {
 }
 
 export function updateQuestion(question: Omit<Question, "updatedAt">) {
-  return prisma.question.update({
+  return prisma.question.upsert({
     where: { id: question.id },
-    data: { ...question },
+    update: question,
+    create: question,
   });
 }
 

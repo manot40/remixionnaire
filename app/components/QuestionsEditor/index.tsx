@@ -15,6 +15,7 @@ import {
   Switch,
   Text,
 } from "@nextui-org/react";
+import cuid from "cuid";
 import toast from "react-hot-toast";
 import { useRecoilState } from "recoil";
 import { useEffect, useState } from "react";
@@ -37,12 +38,18 @@ export default function QuestionsEditor({ meta }: TProps) {
 
   // Watch for fetcher response
   useEffect(() => {
-    if (fetcher.data?.success) toast.success("Updated Successfully");
+    if (fetcher.data?.success) {
+      toast.success("Updated Successfully");
+      setRemoved([]);
+    }
     if (fetcher.data?.error) toast.error(fetcher.data.error);
   }, [fetcher.data]);
 
   // Allowing to change the question primitives
-  function changePrimitive<T = Partial<Question>>(idx: number, object: T) {
+  function changePrimitive<T extends Partial<Question>>(
+    idx: number,
+    object: T
+  ) {
     setQuestions((prev) => {
       const tmp = [...prev];
       tmp[idx] = { ...tmp[idx], ...object };
@@ -56,7 +63,7 @@ export default function QuestionsEditor({ meta }: TProps) {
       ...prev,
       {
         type,
-        id: "",
+        id: cuid(),
         name: "",
         order: 45,
         required: false,
@@ -64,7 +71,6 @@ export default function QuestionsEditor({ meta }: TProps) {
         list: [],
         questionnaireId: meta.id,
         updatedAt: new Date(),
-        answers: [],
       },
     ]);
   };
@@ -104,7 +110,7 @@ export default function QuestionsEditor({ meta }: TProps) {
   };
 
   const submitChange = () => {
-    const _questions = questions.map((q) => ({ ...q, answers: undefined }));
+    const _questions = [...questions];
 
     const submitData = {
       modified: [] as typeof _questions,
@@ -112,7 +118,7 @@ export default function QuestionsEditor({ meta }: TProps) {
       removed: [...removed],
     };
 
-    _questions.forEach((q) => {
+    _questions.forEach((q, idx) => {
       if (typeof q.modified === "boolean") {
         if (q.modified)
           submitData.modified.push({
@@ -120,13 +126,14 @@ export default function QuestionsEditor({ meta }: TProps) {
             modified: undefined,
           });
       } else {
-        const tmp = { ...q, id: undefined };
-        // @ts-ignore
-        submitData.newEntry.push(tmp);
+        submitData.newEntry.push(q);
       }
+      _questions[idx] = { ...q, modified: false };
     });
 
     fetcher.submit({ data: JSON.stringify(submitData) }, { method: "post" });
+
+    setQuestions(_questions);
   };
 
   const questionContent = (qIdx: number) => {
@@ -194,18 +201,24 @@ export default function QuestionsEditor({ meta }: TProps) {
                   },
                 }}
               >
-                <Input
-                  fullWidth
-                  underlined
-                  animated={false}
-                  className="question-title-input"
-                  placeholder="Question Name"
-                  value={question.name}
-                  onChange={({ target }) =>
-                    changePrimitive(idx, { name: target.value })
-                  }
-                  style={{ fontSize: "1rem", fontWeight: 600 }}
-                />
+                <Container css={{ padding: 0 }}>
+                  <QuestionMetaInput
+                    value={question.name}
+                    placeholder="Question"
+                    style={{ fontSize: "1rem", fontWeight: 600 }}
+                    onChange={(name) => changePrimitive(idx, { name })}
+                  />
+                  {typeof question.description === "string" && (
+                    <QuestionMetaInput
+                      value={question.description}
+                      style={{ fontSize: ".75rem" }}
+                      placeholder="Question Description"
+                      onChange={(description) =>
+                        changePrimitive(idx, { description })
+                      }
+                    />
+                  )}
+                </Container>
                 <Spacer y={0.5} />
                 <Select
                   options={[
@@ -216,22 +229,9 @@ export default function QuestionsEditor({ meta }: TProps) {
                   ]}
                   selected={question.type}
                   placeholder="Question Type"
-                  onChange={(e) => changePrimitive(idx, { type: e })}
-                  style={{ width: "25%" }}
+                  onChange={(e) => changePrimitive(idx, { type: e as any })}
                 />
               </Container>
-              {typeof question.description === "string" && (
-                <Input
-                  underlined
-                  className="question-title-input"
-                  placeholder="Description"
-                  value={question.description}
-                  style={{ fontSize: ".75rem" }}
-                  onChange={({ target }) =>
-                    changePrimitive(idx, { description: target.value })
-                  }
-                />
-              )}
               {/TEXT/.test(question.type) && <Spacer />}
               {questionContent(idx)}
               {!/TEXT/.test(question.type) && (
@@ -271,45 +271,29 @@ export default function QuestionsEditor({ meta }: TProps) {
                   />
                 </div>
                 <div style={{ display: "flex" }}>
-                  <Tooltip content="Add/Remove Description">
-                    <Link
-                      color="text"
-                      onClick={() =>
-                        changePrimitive(idx, {
-                          description:
-                            typeof question.description === "string"
-                              ? null
-                              : "",
-                        })
-                      }
-                    >
-                      {/* @ts-ignore */}
-                      <ion-icon
-                        name="text-outline"
-                        style={{ fontSize: "21px", marginRight: "6px" }}
-                      />
-                    </Link>
-                  </Tooltip>
+                  <MiniIcon
+                    content="Add/Remove Description"
+                    onClick={() =>
+                      changePrimitive(idx, {
+                        description:
+                          typeof question.description === "string" ? null : "",
+                      })
+                    }
+                  />
                   <Spacer x={0.5} />
-                  <Tooltip color="primary" content="Duplicate Question">
-                    <Link>
-                      {/* @ts-ignore */}
-                      <ion-icon
-                        name="copy-outline"
-                        style={{ fontSize: "24px", marginRight: "6px" }}
-                      />
-                    </Link>
-                  </Tooltip>
+                  <MiniIcon
+                    color="primary"
+                    icon="copy-outline"
+                    content="Duplicate Question"
+                    onClick={() => {}}
+                  />
                   <Spacer x={0.5} />
-                  <Tooltip color="error" content="Delete Question">
-                    <Link onClick={() => deleteQuestion(idx)} color={"error"}>
-                      {/* @ts-ignore */}
-                      <ion-icon
-                        name="trash-outline"
-                        style={{ fontSize: "24px", marginRight: "6px" }}
-                      />
-                    </Link>
-                  </Tooltip>
+                  <MiniIcon
+                    color="error"
+                    icon="trash-outline"
+                    content="Delete Question"
+                    onClick={() => deleteQuestion(idx)}
+                  />
                 </div>
               </div>
             </Card.Footer>
@@ -335,4 +319,61 @@ export default function QuestionsEditor({ meta }: TProps) {
 
 function isNew(arg: boolean | undefined) {
   return typeof arg === "undefined";
+}
+
+function QuestionMetaInput({
+  onChange,
+  style,
+  placeholder,
+  value,
+}: {
+  onChange: (value: string) => void;
+  placeholder?: string;
+  value?: any;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <Input
+      fullWidth
+      underlined
+      animated={false}
+      className="question-title-input"
+      placeholder={placeholder}
+      value={value}
+      onChange={({ target }) => onChange(target.value)}
+      style={style}
+    />
+  );
+}
+
+function MiniIcon({
+  content,
+  color,
+  icon = "text-outline",
+  onClick,
+}: {
+  icon?: string;
+  content: string;
+  onClick: () => void;
+  color?:
+    | "default"
+    | "text"
+    | "primary"
+    | "secondary"
+    | "success"
+    | "warning"
+    | "error";
+}) {
+  return (
+    // @ts-ignore
+    <Tooltip color={color || "default"} content={content}>
+      <Link color={color || "text"} onClick={onClick}>
+        {/* @ts-ignore */}
+        <ion-icon
+          name={icon}
+          style={{ fontSize: "23px", marginRight: "6px" }}
+        />
+      </Link>
+    </Tooltip>
+  );
 }
