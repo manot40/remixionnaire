@@ -52,7 +52,7 @@ export default function RespondentModal({
 
     if (data?.error == 403) toast.error("You are already answered this form");
 
-    if (typeof data === "object") {
+    if (!data?.error) {
       !allowName &&
         toast.success(`Your email registered with name ${data?.name}`);
       onSubmit({ id: data.id, name: data.name, email: data.email });
