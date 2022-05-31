@@ -28,6 +28,7 @@ import { checkIfAnswered, createAnswers } from "~/models/answer.server";
 
 import QuestionCard from "~/components/QuestionCard";
 import RespondentModal from "~/components/RespondentModal";
+import ProfilePopover from "~/components/ProfilePopover";
 
 type LoaderData = {
   questions: PublicForm[];
@@ -112,8 +113,13 @@ export default function InputForm() {
     });
   }
 
+  function isAnswerNG(q: PublicForm) {
+    if (/\[\]/.test(q.answer) && q.required) return true;
+    return q.required && q.answer.length < 1;
+  }
+
   const submit = () => {
-    const missing = questions.find((q) => q.answer === "" && q.required);
+    const missing = questions.find((q) => isAnswerNG(q));
     if (missing) {
       toast.error("Please answer all required questions");
       return;
@@ -202,7 +208,11 @@ export default function InputForm() {
           padding: "8rem 0px 8rem 0px",
         }}
       >
-        <Container sm>
+        <Container sm css={{ position: "relative" }}>
+          <ProfilePopover
+            name={respondent.name}
+            style={{ position: "absolute", top: "-7rem", right: "1rem" }}
+          />
           <Text h1>{meta.name}</Text>
           <Text>{meta.description}</Text>
         </Container>
@@ -210,13 +220,20 @@ export default function InputForm() {
       <Spacer y={1.5} />
       <Container sm>
         {questions?.map((question, idx) => (
-          <QuestionCard key={idx}>
+          <QuestionCard
+            key={idx}
+            css={
+              isAnswerNG(question)
+                ? { border: "1px solid $red500" }
+                : { border: "1px solid transparent" }
+            }
+          >
             <QuestionCard.Header>
               <Container css={{ padding: 0, userSelect: "none" }}>
                 <Text size={18} b>
                   {question.name}{" "}
                   {question.required ? (
-                    <Text css={{ color: "$primary" }} small>
+                    <Text css={{ color: "$error" }} small>
                       (Required)
                     </Text>
                   ) : null}
@@ -257,7 +274,6 @@ export default function InputForm() {
         )}
       </Container>
       <RespondentModal
-        questionnaireId={meta.id}
         onSubmit={(resp) => {
           initialQ = initialQ.map((q) => ({
             ...q,

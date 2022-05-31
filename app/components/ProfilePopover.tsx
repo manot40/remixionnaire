@@ -12,18 +12,24 @@ import Profile from "./Profile";
 import useDarkMode from "use-dark-mode";
 import { Form, useLocation, useNavigate } from "@remix-run/react";
 
-export default function ProfilePopover({ user }: { user?: TUser }) {
+type TProps = {
+  user?: TUser;
+  style?: React.CSSProperties;
+  name?: string;
+};
+
+export default function ProfilePopover({ user, style, name }: TProps) {
   const { isDark } = useTheme();
   const { toggle } = useDarkMode(false);
 
   const navigation = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname: path } = useLocation();
 
   return (
     <Popover>
       <Popover.Trigger>
-        <div>
-          <Profile user={user} />
+        <div style={style}>
+          <Profile user={user || name} />
         </div>
       </Popover.Trigger>
       <Popover.Content>
@@ -63,8 +69,8 @@ export default function ProfilePopover({ user }: { user?: TUser }) {
               {isDark ? "Dark" : "Light"} Theme
             </Button>
             <Divider />
-            <Spacer y={pathname !== "/" ? 0.25 : 0.5} />
-            {user ? (
+            <Spacer y={path !== "/" ? 0.25 : 0.5} />
+            {typeof user === "object" ? (
               <Form action="/logout" method="post">
                 <Button
                   ghost
@@ -75,12 +81,12 @@ export default function ProfilePopover({ user }: { user?: TUser }) {
                       style={{ fontSize: "17px" }}
                     />
                   }
-                  style={{ display: pathname !== "/" ? "none" : "" }}
+                  style={{ display: path !== "/" ? "none" : "" }}
                   onClick={() => navigation("/workspace")}
                 >
                   Workspace
                 </Button>
-                <Spacer y={pathname !== "/" ? 0 : 0.1} />
+                <Spacer y={path !== "/" ? 0 : 0.1} />
                 <Button
                   icon={
                     //@ts-ignore
@@ -97,7 +103,7 @@ export default function ProfilePopover({ user }: { user?: TUser }) {
                   Logout
                 </Button>
               </Form>
-            ) : (
+            ) : /^\/r/.test(path) ? null : (
               <Button
                 icon={
                   //@ts-ignore

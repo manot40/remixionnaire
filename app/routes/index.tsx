@@ -12,10 +12,10 @@ import { isSlug } from "cuid";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
-import ProfilePopover from "~/components/ProfilePopover";
+import { Form, useActionData, useSearchParams } from "@remix-run/react";
 
 import { getQuestionnaire } from "~/models/questionnaire.server";
+import ProfilePopover from "~/components/ProfilePopover";
 import { useOptionalUser } from "~/libs";
 
 type ActionData = {
@@ -43,6 +43,7 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function Index() {
   const action = useActionData() as ActionData;
+  const [params] = useSearchParams();
   const user = useOptionalUser();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -51,6 +52,11 @@ export default function Index() {
     if (action?.error) toast.error(action.error);
     setIsLoading(false);
   }, [action]);
+
+  useEffect(() => {
+    if (params.get("success"))
+      toast.success("Your answers have been submitted");
+  }, [params]);
 
   return (
     <div

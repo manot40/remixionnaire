@@ -2,17 +2,19 @@ import type { User as TUser } from "@prisma/client";
 
 import { User } from "@nextui-org/react";
 
-export default function Profile({ user }: { user?: TUser }) {
+export default function Profile({ user }: { user?: TUser | string }) {
   return (
     <User
       // @ts-ignore
       pointer="true"
       src={
-        user ? "https://i.pravatar.cc/150?img=15" : "/images/default_user.jpg"
+        typeof user == "object"
+          ? "https://i.pravatar.cc/150?img=15"
+          : "/images/default_user.jpg"
       }
       size="sm"
-      name={user?.name || "Guest"}
-      description={user ? "Creator" : ""}
+      name={typeof user == "string" ? user : user?.name}
+      description={typeof user == "object" ? "Creator" : ""}
       css={{
         flexDirection: "row-reverse",
         textAlign: "right",

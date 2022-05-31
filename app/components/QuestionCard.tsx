@@ -1,23 +1,19 @@
-import {
-  Card,
-  Container,
-  Input,
-  Link,
-  Tooltip,
-  Divider,
-} from "@nextui-org/react";
+import type { CSS } from "@nextui-org/react";
+
+import { Card, Container, Divider } from "@nextui-org/react";
 import { findChildren } from "~/libs";
 
 type TProps = {
   children: any;
+  css?: CSS;
 };
 
-const QuestionCard = ({ children }: TProps) => {
+const QuestionCard = ({ children, css }: TProps) => {
   const cardHeader = findChildren(children, "Header");
   const cardBody = findChildren(children, "Body");
   const cardFooter = findChildren(children, "Footer");
   return (
-    <Card css={{ marginBottom: "$10", padding: "12px 6px 0px 6px" }}>
+    <Card css={{ marginBottom: "$10", padding: "12px 6px 0px 6px", ...css }}>
       <Card.Body style={{ minHeight: "12rem" }}>
         {cardHeader.length ? (
           <Container
