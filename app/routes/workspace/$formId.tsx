@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import type { QuestionnaireData, Question } from "~/types";
+import type { WorkspaceData, Question } from "~/types";
+import type { Respondent } from "@prisma/client";
 
 // Remix Libs
 import { useLoaderData } from "@remix-run/react";
@@ -75,30 +76,42 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const code = params.formId;
   if (!code) return redirect("/workspace?error=notfound");
 
-  const qre = await getQuestionnaire({ code, userId });
-  if (!qre) return redirect("/workspace?error=notfound");
+  const meta = await getQuestionnaire({
+    code,
+    userId,
+    include: { questions: true },
+  });
+  if (!meta) return redirect("/workspace?error=notfound");
 
-  const answers = await getAnswers({ questionnaireId: qre.id });
+  const answers = await getAnswers({ questionnaireId: meta.id });
 
-  const questions = objArrSort(qre.questions, "order").map(
+  const _respondents = {} as { [key: string]: Respondent };
+  answers.forEach(({ respondent }) => {
+    _respondents[respondent.id] = respondent;
+  });
+
+  const respondents = objArrSort(
+    Object.values(_respondents),
+    "createdAt",
+    "desc"
+  );
+
+  const questions = objArrSort(meta.questions as Question[], "order").map(
     (question) =>
       ({
         ...question,
         answers: answers.filter((answer) => answer.questionId === question.id),
         modified: false,
-      } as QuestionnaireData["questions"][number])
+      } as WorkspaceData["questions"][number])
   );
 
-  return json<QuestionnaireData>({
-    // @ts-expect-error
-    meta: { ...qre, questions: undefined, respondents: undefined },
-    respondents: qre.respondents,
-    questions,
-  });
+  delete meta.questions;
+
+  return json<WorkspaceData>({ meta, questions, respondents });
 };
 
 export default function FormDetailLayout() {
-  const { meta, questions, respondents } = useLoaderData() as QuestionnaireData;
+  const { meta, questions, respondents } = useLoaderData() as WorkspaceData;
 
   const [tab, setTab] = useState("questions");
 

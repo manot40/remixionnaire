@@ -3,18 +3,23 @@ import cuid, { isCuid } from "cuid";
 
 import { prisma } from "~/db.server";
 
+type Relation = "questions" | "respondents" | "answers";
+type QreKey<T = unknown> = { [key in Relation]?: T };
+
 export function getQuestionnaire({
   code,
   userId,
+  include,
 }: Pick<Questionnaire, "code"> & {
   userId?: User["id"];
-}) {
+  include?: QreKey<boolean>;
+}): Promise<(Questionnaire & QreKey) | null> {
   let _code, id;
   isCuid(code) ? (id = code) : (_code = code);
-  
+
   return prisma.questionnaire.findFirst({
     where: { id, code: _code, authorId: userId },
-    include: { questions: true, respondents: true },
+    include,
   });
 }
 

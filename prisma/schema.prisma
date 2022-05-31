@@ -1,10 +1,10 @@
 datasource db {
-  provider             = "mysql"
-  url                  = env("DATABASE_URL")
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 model User {
@@ -13,7 +13,6 @@ model User {
   email    String @unique
   password String
 
-  respondents    Respondent[]
   questionnaires Questionnaire[]
 
   createdAt DateTime @default(now())
@@ -27,11 +26,6 @@ model Respondent {
   email   String   @unique
   name    String
   answers Answer[]
-
-  reffererId      String
-  refferer        User          @relation(fields: [reffererId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  questionnaireId String
-  questionnaire   Questionnaire @relation(fields: [questionnaireId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   createdAt DateTime @default(now())
 
@@ -47,7 +41,6 @@ model Questionnaire {
   code        String              @unique
   theme       String              @default("106ebe") @db.Char(length: 6)
   questions   Question[]
-  respondents Respondent[]
   answers     Answer[]
 
   authorId String

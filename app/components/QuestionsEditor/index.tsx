@@ -1,4 +1,4 @@
-import type { QuestionnaireData, Question } from "~/types";
+import type { WorkspaceData, Question } from "~/types";
 
 import {
   Container,
@@ -26,7 +26,7 @@ import QuestionCard from "../QuestionCard";
 import ConfirmPop from "../ConfirmPop";
 
 type TProps = {
-  meta: QuestionnaireData["meta"];
+  meta: WorkspaceData["meta"];
 };
 
 export default function QuestionsEditor({ meta }: TProps) {
@@ -153,7 +153,7 @@ export default function QuestionsEditor({ meta }: TProps) {
 
   const questionContent = (qIdx: number) => {
     const { type } = questions[qIdx];
-    const list = questions[qIdx].list as [];
+    const list = questions[qIdx].list;
     if (type === "SHORT_TEXT") {
       return <Input disabled underlined placeholder="Text Answer" />;
     }
@@ -311,7 +311,7 @@ export default function QuestionsEditor({ meta }: TProps) {
         </Text>
       )}
       <QuestionsEditorPanel
-        isLoading={fetcher.state === "loading"}
+        isLoading={fetcher.state !== "idle"}
         onInsert={insertQuestion}
         onSubmit={submitChange}
       />

@@ -5,18 +5,26 @@ import type {
   Answer,
 } from "@prisma/client";
 
-type GenericObj<T = any> = { [key: string]: T };
+type GenericObj<T = unknown, K = object> = {
+  [key in keyof K]: T;
+};
 
 type ChangeType<T extends object, Keys extends keyof T, NewType> = {
   [key in keyof T]: key extends Keys ? NewType : T[key];
 };
 
 interface Question extends ChangeType<PQuestion, "list", string[]> {
-  answers: Answer[];
+  answers?: Answer[];
   modified?: boolean;
 }
 
-type QuestionnaireData = {
+interface PublicForm extends ChangeType<PQuestion, "list", string[]> {
+  answer: string;
+  questionnaireId: string;
+  respondentId?: string;
+}
+
+type WorkspaceData = {
   meta: Questionnaire;
   respondents: Respondent[];
   questions: Question[];

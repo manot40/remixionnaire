@@ -61,8 +61,6 @@ async function seed() {
     tmpResp.push({
       name: faker.name.findName(),
       email: faker.internet.email(),
-      questionnaireId: questionnaire.id,
-      reffererId: user.id,
     });
   }
   await prisma.respondent.createMany({ data: tmpResp });

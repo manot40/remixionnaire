@@ -1,5 +1,5 @@
 import type { Respondent } from "@prisma/client";
-import type { QuestionnaireData } from "~/types";
+import type { WorkspaceData } from "~/types";
 
 import {
   Container,
@@ -11,7 +11,7 @@ import {
 } from "@nextui-org/react";
 
 type IProps = {
-  questions: QuestionnaireData["questions"];
+  questions: WorkspaceData["questions"];
   respondents: Respondent[];
 };
 
@@ -21,22 +21,23 @@ export default function AnswersTable({ questions, respondents }: IProps) {
       id: r.id,
       name: r.name,
       email: r.email,
-      answers: questions.map((_) => {
+      answers: questions.map((q) => {
         const rand = window.crypto.randomUUID();
-        const answer = _.answers.find(
-          (a) => a.respondentId === r.id && a.questionId === _.id
+        const _ = q.answers?.find(
+          (a) => a.respondentId === r.id && a.questionId === q.id
         );
         return {
-          id: answer?.id || rand,
-          data: answer?.answer || (
-            <Text small i>
-              (no answer)
-            </Text>
-          ),
+          id: _?.id || rand,
+          data: parseAnswer(_?.answer),
         };
       }),
     };
   });
+
+  function parseAnswer(answer?: string): string | JSX.Element {
+    if (!answer) return "";
+    return /^\[/i.test(answer) ? JSON.parse(answer).join(", ") : answer;
+  }
 
   return (
     <Container lg>
@@ -88,7 +89,15 @@ export default function AnswersTable({ questions, respondents }: IProps) {
                   </div>
                 </Table.Cell>
                 {data.answers.map((a) => (
-                  <Table.Cell key={a.id}>{a.data}</Table.Cell>
+                  <Table.Cell key={a.id}>
+                    {a.data ? (
+                      a.data
+                    ) : (
+                      <Text small i>
+                        (no answer)
+                      </Text>
+                    )}
+                  </Table.Cell>
                 ))}
               </Table.Row>
             ))}
