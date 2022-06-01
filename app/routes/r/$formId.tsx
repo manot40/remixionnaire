@@ -79,7 +79,11 @@ export const loader: LoaderFunction = async ({ params }) => {
   const { formId: code } = params;
   if (!code) return redirect("/?error=notfound");
 
-  const meta = await getQuestionnaire({ code, include: { questions: true } });
+  const meta = await getQuestionnaire({
+    code,
+    status: "ACTIVE",
+    include: { questions: true },
+  });
   if (!meta) return redirect("/?error=notfound");
 
   const questions: PublicForm[] = objArrSort(

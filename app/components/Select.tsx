@@ -1,5 +1,6 @@
+import type { CSS } from "@nextui-org/react";
+
 import { Container, Input, Text } from "@nextui-org/react";
-import type { CSSProperties } from "react";
 
 import { useState } from "react";
 
@@ -12,6 +13,8 @@ type TProps = {
   className?: string;
   placeholder?: string;
   label?: string;
+  name?: string;
+  css?: CSS;
 };
 
 export default function SelectComponent({
@@ -20,15 +23,19 @@ export default function SelectComponent({
   placeholder,
   selected,
   label,
+  name,
+  css,
   onChange = () => {},
 }: TProps) {
-  const initialValue = options.find((x) => x.value === selected)?.label || "";
+  const initVal = options.find((x) => x.value === selected) || options[0];
 
   const [open, setOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const [search, setSearch] = useState(initialValue);
+  const [search, setSearch] = useState(initVal.label);
+  const [chosen, setChosen] = useState(initVal);
 
   const selectionChanged = (option: Option) => {
+    setChosen(option);
     setSearch(option.label);
     onChange(option.value);
     setIsFocused(false);
@@ -42,7 +49,7 @@ export default function SelectComponent({
 
   const leave = () => {
     if (!isFocused) {
-      initialValue && setSearch(initialValue);
+      initVal && setSearch(initVal.label);
       setOpen(false);
       setIsFocused(false);
     }
@@ -86,7 +93,8 @@ export default function SelectComponent({
   };
 
   return (
-    <div style={{ position: "relative", maxWidth: "max-content" }}>
+    <div style={{ position: "relative", minWidth: "max-content" }}>
+      <input hidden name={name} value={chosen.value} readOnly />
       <Input
         bordered
         label={label}
@@ -97,6 +105,7 @@ export default function SelectComponent({
         value={search}
         className={className}
         onChange={(e) => setSearch(e.target.value)}
+        css={css}
       />
       {open && (
         <Container

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { Questionnaire, Respondent } from "@prisma/client";
 import type { WorkspaceData, Question } from "~/types";
-import type { Respondent } from "@prisma/client";
 
 // Remix Libs
 import { useLoaderData } from "@remix-run/react";
@@ -11,6 +11,7 @@ import { json, redirect } from "@remix-run/node";
 import { Container, Link, Spacer, Text } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { useSetRecoilState } from "recoil";
+import dayjs from "dayjs";
 import clsx from "clsx";
 
 // Custom libs and helper
@@ -23,11 +24,15 @@ import { objArrSort } from "~/libs";
 import { questionsStore } from "~/store";
 import { getUserId } from "~/session.server";
 import { getAnswers } from "~/models/answer.server";
-import { getQuestionnaire } from "~/models/questionnaire.server";
+import {
+  getQuestionnaire,
+  updateQuestionnaire,
+} from "~/models/questionnaire.server";
 
 // UI Components
 import AnswersTable from "~/components/AnswersTable";
 import QuestionsEditor from "~/components/QuestionsEditor";
+import QuestionSetting from "~/components/QuestionSetting";
 
 type SubmitData = {
   modified: Omit<Question, "answers">[];
@@ -40,10 +45,12 @@ type ActionData = {
   error?: string;
 };
 
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request, params }) => {
+  const formData = await request.formData();
+  const { formId } = params;
+
   switch (request.method) {
-    case "POST":
-      const formData = await request.formData();
+    case "POST": {
       const data: SubmitData = JSON.parse(formData.get("data") as string);
       if (data.newEntry.length) {
         const { count } = await createQuestions(data.newEntry);
@@ -65,6 +72,24 @@ export const action: ActionFunction = async ({ request }) => {
           return json<ActionData>({ error: "Failed to remove questions" });
       }
       return json<ActionData>({ success: true });
+    }
+    case "PUT": {
+      const data = {} as Questionnaire;
+      formData.forEach((value, key) => {
+        // @ts-ignore
+        data[key] = value;
+      });
+      if (!data.name || !data.status) {
+        return json<ActionData>({ error: "Invalid Request" });
+      } else if (formId) {
+        const qre = await updateQuestionnaire(formId, {
+          ...data,
+          description: data.description || null,
+          expiresAt: dayjs(data.expiresAt).toDate(),
+        });
+        return json({ data: qre });
+      }
+    }
     default:
       return json<ActionData>({ error: "Method not allowed" });
   }
@@ -147,6 +172,17 @@ export default function FormDetailLayout() {
         );
       case "answers":
         return <AnswersTable respondents={respondents} questions={questions} />;
+      case "settings":
+        return (
+          <Container sm>
+            <Spacer y={1.5} />
+            <Text h1 className="heading-text">
+              Form Settings
+            </Text>
+            <Spacer />
+            <QuestionSetting meta={meta} />
+          </Container>
+        );
     }
   };
 
@@ -177,14 +213,14 @@ export default function FormDetailLayout() {
           Answers
         </Link>
         <Link
-          color={tab == "setting" ? "primary" : "text"}
+          color={tab == "settings" ? "primary" : "text"}
           style={{ userSelect: "none" }}
-          onClick={() => setTab("setting")}
+          onClick={() => setTab("settings")}
           className={clsx("context-option", {
-            "option-selected": tab == "setting",
+            "option-selected": tab == "settings",
           })}
         >
-          Setting
+          Settings
         </Link>
       </Container>
       {renderContent()}

@@ -30,7 +30,7 @@ export const action: ActionFunction = async ({ request }) => {
     return json<ActionData>({ error: "Invitation code invalid" });
   }
 
-  const qre = await getQuestionnaire({ code });
+  const qre = await getQuestionnaire({ code, status: "ACTIVE" });
 
   if (!qre) {
     return json<ActionData>({
@@ -54,8 +54,13 @@ export default function Index() {
   }, [action]);
 
   useEffect(() => {
+    const error = params.get("error");
+    
     if (params.get("success"))
       toast.success("Your answers have been submitted");
+
+    if (error == "notfound") toast.error("Questionnaire not found");
+    if (error == "closed") toast.error("Questionnaire already closed");
   }, [params]);
 
   return (
