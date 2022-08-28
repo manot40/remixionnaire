@@ -30,19 +30,22 @@ async function seed() {
       description: faker.lorem.sentences(3),
       authorId: user.id,
       code: cuid.slug(),
-      theme: "b6fe2f",
+      theme: "82d9d9",
       questions: {
         create: [
           {
+            order: 0,
             name: "How are you doing?",
             type: "SHORT_TEXT",
           },
           {
+            order: 1,
             name: "What is your gender?",
             type: "RADIO",
             list: ["Male", "Female"],
           },
           {
+            order: 2,
             name: "Describe yourself",
             type: "TEXT",
           },
@@ -58,8 +61,6 @@ async function seed() {
     tmpResp.push({
       name: faker.name.findName(),
       email: faker.internet.email(),
-      questionnaireId: questionnaire.id,
-      reffererId: user.id,
     });
   }
   await prisma.respondent.createMany({ data: tmpResp });

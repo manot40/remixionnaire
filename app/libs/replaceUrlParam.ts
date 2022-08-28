@@ -1,4 +1,4 @@
-export default function replaceUrlParam(
+export function replaceUrlParam(
   paramName: string,
   paramValue?: string
 ) {

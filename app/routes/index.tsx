@@ -8,34 +8,33 @@ import {
   Spacer,
   Text,
 } from "@nextui-org/react";
+import { isSlug } from "cuid";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
-import ProfilePopover from "~/components/ProfilePopover";
+import { Form, useActionData, useSearchParams } from "@remix-run/react";
 
 import { getQuestionnaire } from "~/models/questionnaire.server";
+import ProfilePopover from "~/components/ProfilePopover";
 import { useOptionalUser } from "~/libs";
 
 type ActionData = {
-  error: {
-    message: string;
-  };
+  error: string;
 };
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const code = formData.get("code");
 
-  if (typeof code !== "string" || code.length < 6) {
-    return json<ActionData>({ error: { message: "Invitation code invalid" } });
+  if (typeof code !== "string" || !isSlug(code)) {
+    return json<ActionData>({ error: "Invitation code invalid" });
   }
 
-  const qre = await getQuestionnaire({ code });
+  const qre = await getQuestionnaire({ code, status: "ACTIVE" });
 
   if (!qre) {
     return json<ActionData>({
-      error: { message: "Invitation code not found" },
+      error: "Invitation code not found",
     });
   } else {
     return redirect(`/r/${qre.id}`);
@@ -44,14 +43,25 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function Index() {
   const action = useActionData() as ActionData;
+  const [params] = useSearchParams();
   const user = useOptionalUser();
 
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (action?.error) toast.error(action.error.message);
+    if (action?.error) toast.error(action.error);
     setIsLoading(false);
   }, [action]);
+
+  useEffect(() => {
+    const error = params.get("error");
+    
+    if (params.get("success"))
+      toast.success("Your answers have been submitted");
+
+    if (error == "notfound") toast.error("Questionnaire not found");
+    if (error == "closed") toast.error("Questionnaire already closed");
+  }, [params]);
 
   return (
     <div

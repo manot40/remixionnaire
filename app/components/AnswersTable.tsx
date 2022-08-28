@@ -1,4 +1,5 @@
-import type { Answer, Question, Respondent } from "@prisma/client";
+import type { Respondent } from "@prisma/client";
+import type { WorkspaceData } from "~/types";
 
 import {
   Container,
@@ -8,35 +9,36 @@ import {
   Button,
   Card,
 } from "@nextui-org/react";
-import { objArrSort } from "~/libs";
 
-interface IProps {
-  questions: Question[];
+type IProps = {
+  questions: WorkspaceData["questions"];
   respondents: Respondent[];
-  answers: Answer[];
-}
+};
 
-export default function AnswersTable({
-  questions,
-  respondents,
-  answers,
-}: IProps) {
-  const answersOf = (id: string) =>
-    objArrSort(
-      answers.filter((answer) => answer.respondentId === id),
-      "id"
-    );
+export default function AnswersTable({ questions, respondents }: IProps) {
   const tableData = respondents.map((r) => {
-    const answers = answersOf(r.id);
     return {
       id: r.id,
       name: r.name,
       email: r.email,
-      answers: answers.map((a) => {
-        return { id: a.id, data: a.answer };
+      answers: questions.map((q) => {
+        const rand = window.crypto.randomUUID();
+        const _ = q.answers?.find(
+          (a) => a.respondentId === r.id && a.questionId === q.id
+        );
+        return {
+          id: _?.id || rand,
+          data: parseAnswer(_?.answer),
+        };
       }),
     };
   });
+
+  function parseAnswer(answer?: string): string | JSX.Element {
+    if (!answer) return "";
+    return /^\[/i.test(answer) ? JSON.parse(answer).join(", ") : answer;
+  }
+
   return (
     <Container lg>
       <Spacer y={1.5} />
@@ -61,7 +63,6 @@ export default function AnswersTable({
       <Spacer />
       {tableData.length ? (
         <Table
-          aria-label="Example static collection table with multiple selection"
           selectionMode="multiple"
           striped
           css={{
@@ -71,19 +72,15 @@ export default function AnswersTable({
           }}
         >
           <Table.Header>
-            <Table.Column key="name">
-              Respondent
-            </Table.Column>
+            <Table.Column key="name">Respondent</Table.Column>
             {questions.map((q) => (
-              <Table.Column key={`col-${q.id}`}>
-                {q.name}
-              </Table.Column>
+              <Table.Column key={q.id}>{q.name}</Table.Column>
             ))}
           </Table.Header>
           <Table.Body>
             {tableData.map((data) => (
-              <Table.Row key={`row-${data.id}`}>
-                <Table.Cell key={`cell-${data.id}`}>
+              <Table.Row key={data.id}>
+                <Table.Cell>
                   <div className="inline-name-wrapper">
                     <Text b>{data.name}</Text>
                     <Text size={12} css={{ color: "$gray600" }}>
@@ -92,7 +89,15 @@ export default function AnswersTable({
                   </div>
                 </Table.Cell>
                 {data.answers.map((a) => (
-                  <Table.Cell key={`cell-${a.id}`}>{a.data}</Table.Cell>
+                  <Table.Cell key={a.id}>
+                    {a.data ? (
+                      a.data
+                    ) : (
+                      <Text small i>
+                        (no answer)
+                      </Text>
+                    )}
+                  </Table.Cell>
                 ))}
               </Table.Row>
             ))}
@@ -107,7 +112,9 @@ export default function AnswersTable({
             alignItems: "center",
           }}
         >
-          <Text css={{color: "$accents6", letterSpacing: "$normal"}}>No answers yet</Text>
+          <Text css={{ color: "$accents6", letterSpacing: "$normal" }}>
+            No answers yet
+          </Text>
         </Card>
       )}
       <Spacer y={2.5} />

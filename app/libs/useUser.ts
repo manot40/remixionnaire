@@ -1,7 +1,7 @@
 import type { User } from "@prisma/client";
-import useOptionalUser from "./useOptionalUser";
+import { useOptionalUser } from "./useOptionalUser";
 
-export default function useUser(): User {
+export function useUser(): User {
   const maybeUser = useOptionalUser();
   if (!maybeUser) {
     throw new Error(

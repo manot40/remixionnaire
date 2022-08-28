@@ -14,6 +14,7 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 
+import { RecoilRoot } from "recoil";
 import useDarkMode from "use-dark-mode";
 import { darkTheme, lightTheme } from "./themes";
 import { NextUIProvider } from "@nextui-org/react";
@@ -52,7 +53,9 @@ export default function App() {
       </head>
       <body>
         <NextUIProvider theme={isDark ? darkTheme : lightTheme}>
-          <Outlet />
+          <RecoilRoot>
+            <Outlet />
+          </RecoilRoot>
         </NextUIProvider>
         <Toaster toastOptions={{ className: "toasty" }} />
         <ScrollRestoration />

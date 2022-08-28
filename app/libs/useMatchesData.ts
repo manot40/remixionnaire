@@ -7,7 +7,7 @@ import { useMemo } from "react";
  * @param {string} id The route id
  * @returns {JSON|undefined} The router data or undefined if not found
  */
-export default function useMatchesData(
+export function useMatchesData(
   id: string
 ): Record<string, unknown> | undefined {
   const matchingRoutes = useMatches();

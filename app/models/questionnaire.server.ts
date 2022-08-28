@@ -1,17 +1,35 @@
 import type { User, Questionnaire } from "@prisma/client";
-import cuid from "cuid";
+import cuid, { isCuid } from "cuid";
 
 import { prisma } from "~/db.server";
+
+type Relation = "questions" | "respondents" | "answers";
+type QreKey<T = unknown> = { [key in Relation]?: T };
+
+interface IQre {
+  code: Questionnaire["code" | "id"];
+  status?: Questionnaire["status"];
+  include?: QreKey<boolean>;
+  userId?: User["id"];
+}
 
 export function getQuestionnaire({
   code,
   userId,
-}: Pick<Questionnaire, "code"> & {
-  userId?: User["id"];
-}) {
+  include,
+  status,
+}: IQre): Promise<(Questionnaire & QreKey) | null> {
+  let _code, id;
+  isCuid(code) ? (id = code) : (_code = code);
+
   return prisma.questionnaire.findFirst({
-    where: { code, authorId: userId },
-    include: { questions: true, respondents: true },
+    where: {
+      id,
+      code: _code,
+      authorId: userId,
+      status,
+    },
+    include,
   });
 }
 
@@ -42,6 +60,13 @@ export function createQuestionnaire({
         connect: { id: userId },
       },
     },
+  });
+}
+
+export function updateQuestionnaire(id: string, qre: Partial<Questionnaire>) {
+  return prisma.questionnaire.update({
+    where: { id },
+    data: qre,
   });
 }
 
